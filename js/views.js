@@ -89,7 +89,8 @@
     A.state.title = t('nav.home');
     var groups = ['write', 'grammar', 'skills'];
     var built = A.modules, soon = (A.comingSoon || []).filter(function (s) { return !built.some(function (m) { return m.id === s.id; }); });
-    var out = '<section class="hero"><h1>' + esc(A.config.name) + '</h1><p class="lead">' + esc(L(A.config.tagline)) + '</p><p>' + esc(t('home.intro')) + '</p></section>';
+    var out = '<section class="hero"><div class="hero-text"><h1>' + esc(A.config.name) + '</h1><p class="hand-tag">' + esc(L(A.config.tagline)) + '</p><p class="lead">' + esc(t('home.intro')) + '</p></div>' +
+      '<div class="hero-art">' + (A.heroHtml ? A.heroHtml() : '') + (A.heroHtml ? '<button type="button" class="btn btn-ghost sm hero-toggle" data-act="heroToggle" aria-pressed="false">' + icon('pen') + '<span class="hero-lbl">' + esc(t('hero.pause')) + '</span></button>' : '') + '</div></section>';
     groups.forEach(function (g) {
       var a = built.filter(function (m) { return m.group === g; }), b = soon.filter(function (m) { return m.group === g; });
       if (!a.length && !b.length) return;
@@ -125,6 +126,59 @@
     }
   };
 
+  /* ---------- explainers: stages (curve / blocks), flip cards, table, pairs ---------- */
+  function cellHtml(c) { return typeof c === 'string' ? '<td lang="en">' + rich(c) + '</td>' : '<td>' + rich(L(c)) + '</td>'; }
+  function curveSvg(n, cur) {
+    var P = [[50, 190], [170, 150], [300, 40], [420, 115], [550, 178]].slice(0, 5);
+    var dots = P.map(function (pt, i) { return '<circle class="dot' + (cur === i ? ' on' : '') + '" cx="' + pt[0] + '" cy="' + pt[1] + '" r="12"/><text x="' + pt[0] + '" y="' + (pt[1] + 5) + '" text-anchor="middle" style="fill:var(--ink);font-weight:700">' + (i + 1) + '</text>'; }).join('');
+    return '<svg class="curve" viewBox="0 0 600 240" aria-hidden="true" focusable="false"><path class="axis" d="M30 20 V210 H585"/><text transform="translate(16,115) rotate(-90)" text-anchor="middle">' + esc(t('ex.tension')) + '</text>' +
+      '<path class="path" d="M50 190 C100 190 120 165 170 150 S250 40 300 40 S380 100 420 115 S500 178 550 178"/>' + dots + '<text x="570" y="232" text-anchor="end">' + esc(t('ex.time')) + '</text></svg>';
+  }
+  function stageDetail(m, ex, st) {
+    if (!st) return '<p class="muted stage-detail">' + icon('info') + ' ' + esc(t('ex.pick')) + '</p>';
+    var link = st.part && ex.model ? '<p><a class="btn sm" href="#/m/' + m.id + '/models/' + ex.model + '/' + st.part + '">' + esc(t('ex.show')) + icon('arrow-right') + '</a></p>' : '';
+    return '<div class="stage-detail" aria-live="polite"><h3>' + esc(L(st.label)) + '</h3><p>' + rich(L(st.desc)) + '</p>' + link + '</div>';
+  }
+  function explainerHtml(m, ex) {
+    var v = A.state.view, p = A.state.prefs, out = '<section class="explainer" aria-labelledby="ex-' + ex.id + '"><h2 id="ex-' + ex.id + '">' + esc(L(ex.title)) + '</h2>' + (ex.intro ? '<p class="lead">' + esc(L(ex.intro)) + '</p>' : '');
+    v.stage = v.stage || {}; v.flip = v.flip || {};
+    if (ex.type === 'stages' && ex.style === 'curve') {
+      var cur = v.stage[ex.id], sel = cur == null ? null : ex.stages[cur];
+      out += '<div class="stages"><div>' + curveSvg(ex.stages.length, cur == null ? -1 : cur) + '</div><div><ol class="stage-list">' + ex.stages.map(function (s, i) {
+        return '<li><button type="button" class="stage" data-act="stageSel" data-ex="' + ex.id + '" data-i="' + i + '" data-key="st-' + ex.id + '-' + i + '" aria-pressed="' + (cur === i) + '"><span class="stage-n">' + (i + 1) + '</span><span>' + esc(L(s.label)) + '</span></button></li>';
+      }).join('') + '</ol>' + stageDetail(m, ex, sel) + '</div></div>';
+    } else if (ex.type === 'stages') {   // blocks
+      var key = v.stage[ex.id], found = null;
+      out += '<div class="stages stages-blocks"><ol class="blocks">' + ex.rows.map(function (r, ri) {
+        return '<li class="blk"><span class="blk-t">' + esc(L(r.label)) + '</span><span class="blk-parts">' + r.items.map(function (it, ii) {
+          var k = ri + '-' + ii; if (key === k) found = it;
+          return '<button type="button" class="stage" data-act="stageSel" data-ex="' + ex.id + '" data-i="' + k + '" data-key="st-' + ex.id + '-' + k + '" aria-pressed="' + (key === k) + '">' + esc(L(it.label)) + '</button>';
+        }).join('') + '</span></li>';
+      }).join('') + '</ol>' + stageDetail(m, ex, found) + '</div>';
+    } else if (ex.type === 'cards') {
+      out += '<div class="flipcards">' + ex.cards.map(function (c, i) {
+        var k = ex.id + '-' + i, on = !!v.flip[k], nbt = on ? c.nbShow : c.nbTell;
+        return '<button type="button" class="flip' + (on ? ' show-side' : '') + '" data-act="flipCard" data-k="' + k + '" data-key="fc-' + k + '" aria-pressed="' + on + '"><span class="side">' + icon(on ? 'check' : 'x') + esc(t(on ? 'ex.show.s' : 'ex.tell.s')) + '</span>' +
+          '<span class="txt-s" lang="en">' + rich(on ? c.show : c.tell) + '</span>' + (p.showNb && nbt ? '<span class="nb" lang="nb">' + rich(nbt) + '</span>' : '') + '<span class="tap">' + esc(t(on ? 'ex.tap.back' : 'ex.tap')) + '</span></button>';
+      }).join('') + '</div>';
+    } else if (ex.type === 'table') {
+      out += '<div class="tablewrap"><table class="cmp"><thead><tr>' + ex.head.map(function (h) { return '<th scope="col">' + esc(L(h)) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        ex.rows.map(function (r) { return '<tr><th scope="row">' + rich(L(r[0])) + '</th>' + r.slice(1).map(cellHtml).join('') + '</tr>'; }).join('') + '</tbody></table></div>';
+    } else if (ex.type === 'pairs') {
+      out += '<div class="pairs">' + ex.pairs.map(function (pr) {
+        return '<div class="pair"><p class="bad" lang="en"><span class="mk">' + icon('x') + '<span class="sr">' + esc(t('mv.wrong')) + ': </span></span>' + rich(pr.bad) + '</p><p class="good" lang="en"><span class="mk">' + icon('check') + '<span class="sr">' + esc(t('mv.right')) + ': </span></span>' + rich(pr.good) + '</p>' + (pr.note ? '<p class="muted">' + rich(L(pr.note)) + '</p>' : '') + '</div>';
+      }).join('') + '</div>';
+    }
+    return out + '</section>';
+  }
+  function explainersHtml(m) { return (m.explainers || []).map(function (ex) { return explainerHtml(m, ex); }).join(''); }
+  A.acts.stageSel = function (el) {
+    var v = A.state.view; v.stage = v.stage || {}; var k = el.dataset.i;
+    var val = /-/.test(k) ? k : +k;
+    v.stage[el.dataset.ex] = v.stage[el.dataset.ex] === val ? null : val; A.rerender();
+  };
+  A.acts.flipCard = function (el) { var v = A.state.view; v.flip = v.flip || {}; v.flip[el.dataset.k] = !v.flip[el.dataset.k]; A.rerender(); };
+
   /* ---------- overview ---------- */
   function overviewHtml(m) {
     var v = A.state.view, p = A.state.prefs, out = '';
@@ -134,6 +188,7 @@
       if (m.remember) out += '<section class="box remember" aria-labelledby="rm"><h2 id="rm">' + icon('bookmark') + esc(t('ov.remember')) + '</h2><p>' + rich(L(m.remember)) + '</p></section>';
       out += '</div>';
     }
+    out += explainersHtml(m);
     if (m.compare) {
       out += '<section aria-labelledby="cmp"><h2 id="cmp">' + esc(t('ov.compare')) + '</h2><div class="tablewrap"><table class="cmp"><thead><tr><th scope="col"><span class="sr">' + esc(t('ov.feature')) + '</span></th><th scope="col">' + esc(t('reg.informal')) + '</th><th scope="col">' + esc(t('reg.formal')) + '</th></tr></thead><tbody>' +
         m.compare.map(function (row) { return '<tr><th scope="row">' + esc(L(row.k)) + '</th><td lang="en">' + rich(L(row.a)) + '</td><td lang="en">' + rich(L(row.b)) + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
@@ -262,7 +317,8 @@
   A.views.credits = function () {
     A.state.title = t('nav.credits');
     var p = A.state.prefs, rows = [];
-    A.modules.forEach(function (m) { (m.resources || []).forEach(function (r) { rows.push({ m: m, r: r }); }); });
+    var seenUrl = {};
+    A.modules.forEach(function (m) { (m.resources || []).forEach(function (r) { if (!seenUrl[r.url]) { seenUrl[r.url] = 1; rows.push({ m: m, r: r }); } }); });
     var out = '<header class="page-head"><h1>' + esc(t('nav.credits')) + '</h1><p class="lead">' + esc(t('cr.lead')) + '</p></header>';
     out += '<section class="prose"><h2>' + esc(t('cr.base')) + '</h2><ul>' +
       '<li><a href="https://www.udir.no/lk20/ENG01-06" target="_blank" rel="noopener noreferrer">Utdanningsdirektoratet: Læreplan i engelsk (ENG01-06)<span class="ext" aria-hidden="true">' + icon('external') + '</span></a>. ' + esc(t('cr.curr')) + '</li>' +
@@ -273,6 +329,7 @@
     out += '<section class="prose"><h2>' + esc(t('cr.tools')) + '</h2><ul>' +
       '<li>Lexend © The Lexend Project Authors, SIL Open Font License 1.1 (<span lang="en">fonts/OFL-lexend.txt</span>)</li>' +
       '<li>Atkinson Hyperlegible © Braille Institute of America, Inc., SIL Open Font License 1.1 (<span lang="en">fonts/OFL-atkinson-hyperlegible.txt</span>)</li>' +
+      '<li>Caveat © The Caveat Project Authors, SIL Open Font License 1.1 (<span lang="en">fonts/OFL-caveat.txt</span>)</li>' +
       '<li>' + esc(t('cr.fontsrc')) + '</li></ul></section>';
     if (p.teacher) {
       var pend = [];

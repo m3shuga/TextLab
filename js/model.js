@@ -1,4 +1,6 @@
-/* Model-text viewer: clickable parts + info box, Quiz me, Label it, listen, print. */
+/* Model-text viewer: clickable parts + info box, Quiz me, Label it, listen, print.
+   A text can have normal paragraphs (one clickable block each) and "inline" paragraphs
+   made of several clickable sentences (segments that share the same f.p value). */
 (function () {
   'use strict';
   var A = window.APP, t = A.t, L = A.L, esc = A.esc, rich = A.rich, icon = A.icon;
@@ -27,6 +29,16 @@
   function plainText(mod) {
     return segsOf(mod).map(function (s) { return A.plain(s.text).split('\n').map(function (l) { return l.replace(/^- /, ''); }).filter(function (l) { return !/^(To|Subject):/.test(l); }).join('. '); }).filter(function (x) { return x.trim(); }).join('\n\n');
   }
+  // group segments into blocks: consecutive segments with the same f.p form one inline paragraph
+  function blocksOf(segs) {
+    var blocks = [], last = null;
+    segs.forEach(function (s, i) {
+      var p = s.f && s.f.p;
+      if (p && last && last.p === p) { last.items.push({ s: s, i: i }); }
+      else { last = { p: p || null, items: [{ s: s, i: i }] }; blocks.push(last); }
+    });
+    return blocks;
+  }
 
   /* ---------- state helpers ---------- */
   function initLabel(mod) {
@@ -43,6 +55,7 @@
     var v = A.state.view, p = A.state.prefs, mod = getModel(m, r), lvl = p.level;
     v.mode = v.mode || 'explore';
     v.quizDone = v.quizDone || {}; v.score = v.score || { first: 0, total: 0 };
+    if (r.part && !v.partInit) { v.partInit = true; if (mod.parts[r.part]) v.sel = r.part; }
     if (v.mode === 'label' && !v.label) initLabel(mod);
     var data = mod.levels[lvl], segs = data.segments, mode = v.mode;
     var words = segs.map(function (s) { return A.wordCount(s.text); }).reduce(function (a, b) { return a + b; }, 0);
@@ -62,8 +75,13 @@
 
     var draft = p.teacher ? '<p class="teacher-only draft">' + icon('info') + ' ' + esc(data.reviewed ? t('teacher.reviewed') : t('teacher.draft')) + ' · ' + esc(t('teacher.words', { n: words })) + '</p>' : '';
 
-    var paper = '<article class="paper kind-' + mod.kind + ' mode-' + mode + (v.sel && mode === 'explore' ? ' has-sel' : '') + '" aria-label="' + esc(L(mod.title)) + '">' +
-      segs.map(function (s, i) { return segHtml(mod, s, i, i > 0 ? segs[i - 1] : null); }).join('') + '</article>';
+    var blocks = blocksOf(segs).map(function (b) {
+      if (!b.p) return segHtml(mod, b.items[0].s, b.items[0].i, b.items[0].i > 0 ? segs[b.items[0].i - 1] : null, false);
+      var inner = b.items.map(function (it) { return segHtml(mod, it.s, it.i, it.i > 0 ? segs[it.i - 1] : null, true); }).join(' ');
+      var nb = p.showNb ? '<p class="nb" lang="nb">' + b.items.map(function (it) { return rich(it.s.nb); }).join(' ') + '</p>' : '';
+      return '<div class="tblock">' + inner + '</div>' + nb;
+    }).join('');
+    var paper = '<article class="paper kind-' + mod.kind + ' mode-' + mode + (v.sel && mode === 'explore' ? ' has-sel' : '') + '" aria-label="' + esc(L(mod.title)) + '">' + blocks + '</article>';
 
     var panel = panelHtml(mod, segs);
 
@@ -78,21 +96,23 @@
     return A.shell(m, 'models', body, L(mod.title));
   };
 
-  function segHtml(mod, s, i, prev) {
+  function segHtml(mod, s, i, prev, inline) {
     var v = A.state.view, p = A.state.prefs, mode = v.mode, part = mod.parts[s.part];
-    var sel = mode === 'explore' ? v.sel === s.part : (mode === 'quiz' ? v.sel === s.part : false);
+    var sel = (mode === 'explore' || mode === 'quiz') ? v.sel === s.part : false;
     var labelled = mode === 'label' && v.label && v.label.done[s.part];
     var showCat = mode === 'explore' || (mode === 'quiz' && v.quizDone[s.part]) || labelled;
     var first = !prev || prev.part !== s.part;
     var num = (mode === 'explore' && p.numbers && first) ? '<span class="num cat-' + part.cat + '" aria-hidden="true">' + icon(part.cat) + part.n + '</span>' : '';
-    var cls = 'tseg' + (showCat ? ' cat-' + part.cat : '') + (sel ? ' sel' : '') + (s.f.a === 'r' ? ' al-r' : '') + (s.f.b ? ' b' : '') + (s.part === 'recipient-subject' && mod.kind === 'email' ? ' hdr' : '') + (labelled ? ' done' : '');
+    var cls = 'tseg' + (inline ? ' inline' : '') + (showCat ? ' cat-' + part.cat : '') + (sel ? ' sel' : '') + (s.f.a === 'r' ? ' al-r' : '') + (s.f.b ? ' b' : '') + (s.f.t ? ' title-seg' : '') + (s.f.ref ? ' ref' : '') + (s.part === 'recipient-subject' && mod.kind === 'email' ? ' hdr' : '') + (labelled ? ' done' : '');
     var lab = labelled && first ? '<span class="seg-label cat-' + part.cat + '">' + icon(part.cat) + esc(L(part.name)) + '</span>' : '';
     var done = mode === 'quiz' && v.quizDone[s.part] && first ? '<span class="seg-label cat-' + part.cat + '">' + icon('check') + esc(L(part.name)) + '</span>' : '';
     var sr = mode === 'explore' ? '<span class="sr">' + esc(t('mv.partn', { n: part.n, name: L(part.name) })) + '. </span>' : '';
     var pressed = (mode === 'label') ? (labelled ? 'true' : 'false') : String(!!sel);
-    return '<div class="' + cls + '" data-seg="' + i + '" data-part="' + s.part + '">' + lab + done +
-      '<button type="button" class="part" data-act="selPart" data-part="' + s.part + '" data-seg="' + i + '" data-key="seg' + i + '" aria-pressed="' + pressed + '">' + num + sr + '<span class="txt" lang="en">' + segText(s.text) + '</span></button>' +
-      (p.showNb ? '<p class="nb" lang="nb">' + rich(s.nb) + '</p>' : '') + '</div>';
+    var attrs = ' data-act="selPart" data-part="' + s.part + '" data-seg="' + i + '" data-key="seg' + i + '" aria-pressed="' + pressed + '"';
+    var inner = num + sr + '<span class="txt" lang="en">' + segText(s.text) + '</span>';
+    var btn = inline ? '<span class="part" role="button" tabindex="0"' + attrs + '>' + inner + '</span>' : '<button type="button" class="part"' + attrs + '>' + inner + '</button>';
+    if (inline) return '<span class="' + cls + '" data-seg="' + i + '" data-part="' + s.part + '">' + lab + done + btn + '</span>';
+    return '<div class="' + cls + '" data-seg="' + i + '" data-part="' + s.part + '">' + lab + done + btn + (p.showNb ? '<p class="nb" lang="nb">' + rich(s.nb) + '</p>' : '') + '</div>';
   }
 
   /* ---------- panels ---------- */
@@ -112,30 +132,42 @@
     }).join('') + '</ul>';
   }
 
+  function accItem(sec, iconName, label, count, bodyHtml) {
+    var v = A.state.view, open = v.acc === sec;
+    return '<section class="acc-item"><h4><button type="button" class="acc-btn" data-act="accToggle" data-sec="' + sec + '" data-key="acc-' + sec + '" aria-expanded="' + open + '" aria-controls="acc-' + sec + '">' +
+      icon(iconName) + '<span>' + esc(label) + '</span>' + (count ? '<span class="count">' + count + '</span>' : '') + '<span class="chev">' + icon('chev') + '</span></button></h4>' +
+      '<div class="acc-body" id="acc-' + sec + '"' + (open ? '' : ' hidden') + '>' + bodyHtml + '</div></section>';
+  }
+
   function panelExplore(mod, segs) {
     var v = A.state.view, p = A.state.prefs, id = v.sel;
     if (!id) return '<div class="panel-empty"><h3>' + esc(t('mv.empty.h')) + '</h3><p>' + esc(t('mv.empty.p')) + '</p>' + legend(mod) + '</div>';
     var pt = mod.parts[id], lvl = p.level, order = partOrder(mod), idx = order.indexOf(id);
     var tips = pt.tips.slice().concat((pt.levelTips && pt.levelTips[lvl]) || []);
+    var shown = (v.moreTips || tips.length <= 4) ? tips : tips.slice(0, 3);
     var nb = segs.filter(function (s) { return s.part === id; }).map(function (s) { return s.nb; }).join('\n\n');
     var en = segs.filter(function (s) { return s.part === id; }).map(function (s) { return A.plain(s.text); }).join('\n');
     var out = '<div class="panel-head"><span class="num big cat-' + pt.cat + '">' + icon(pt.cat) + pt.n + '</span><div><h3>' + esc(L(pt.name)) + '</h3>' + A.catBadge(pt.cat) + '</div>' +
       '<button type="button" class="btn btn-ghost sm" data-act="closePart" aria-label="' + esc(t('act.close')) + '">' + icon('x') + '</button></div>';
     if (p.showNb) out += '<section class="nb-box"><h4>' + esc(t('mv.innb')) + '</h4><p lang="nb">' + rich(nb) + '</p></section>';
-    out += '<section><h4>' + esc(t('mv.what')) + '</h4><p>' + esc(L(pt.fn)) + '</p></section>';
-    out += '<section><h4>' + esc(t('mv.how')) + '</h4><ul>' + tips.map(function (x) { return '<li>' + rich(L(x)) + '</li>'; }).join('') + '</ul></section>';
+    out += '<h4>' + icon('info') + esc(t('mv.what')) + '</h4><p class="fn">' + esc(L(pt.fn)) + '</p>';
+    out += '<h4>' + icon('pen') + esc(t('mv.how')) + '</h4><ul class="tips">' + shown.map(function (x) { return '<li>' + rich(L(x)) + '</li>'; }).join('') + '</ul>';
+    if (tips.length > 4) out += '<button type="button" class="btn btn-ghost sm more-btn" data-act="moreTips" data-key="moretips">' + esc(t(v.moreTips ? 'mv.fewer' : 'mv.more', { n: tips.length - 3 })) + '</button>';
+    var accs = '';
     if (pt.phrases && pt.phrases.length) {
-      out += '<section><h4>' + esc(t('mv.phrases')) + '</h4><ul class="chips">' + pt.phrases.map(function (ph) {
-        var pl = A.plain(ph);
-        return '<li><button type="button" class="chip" data-act="copyText" data-text="' + esc(pl) + '" title="' + esc(t('act.copy')) + '" lang="en">' + icon('copy') + '<span>' + rich(ph) + '</span></button></li>';
-      }).join('') + '</ul><p class="muted sm-t"><a href="#/m/' + A.state.route.id + '/phrases">' + esc(t('mv.openbank')) + ' ' + icon('arrow-right') + '</a></p></section>';
+      accs += accItem('phrases', 'copy', t('mv.phrases'), pt.phrases.length,
+        '<ul class="phrase-list">' + pt.phrases.map(function (ph) {
+          var pl = A.plain(ph);
+          return '<li><button type="button" class="phrase-row" data-act="copyText" data-text="' + esc(pl) + '"><span lang="en">' + rich(ph) + '</span><span class="cp">' + icon('copy') + esc(t('act.copy')) + '</span></button></li>';
+        }).join('') + '</ul><p class="muted sm-t"><a href="#/m/' + A.state.route.id + '/phrases">' + esc(t('mv.openbank')) + ' ' + icon('arrow-right') + '</a></p>');
     }
     if (pt.mistake) {
-      out += '<section class="mistake"><h4>' + icon('warn') + esc(t('mv.mistake')) + '</h4>' +
-        '<p class="bad" lang="en"><span class="mk">' + icon('x') + '<span class="sr">' + esc(t('mv.wrong')) + ': </span></span>' + rich(pt.mistake.bad) + '</p>' +
+      accs += accItem('mistake', 'warn', t('mv.mistake'), 0,
+        '<div class="mistake"><p class="bad" lang="en"><span class="mk">' + icon('x') + '<span class="sr">' + esc(t('mv.wrong')) + ': </span></span>' + rich(pt.mistake.bad) + '</p>' +
         '<p class="good" lang="en"><span class="mk">' + icon('check') + '<span class="sr">' + esc(t('mv.right')) + ': </span></span>' + rich(pt.mistake.good) + '</p>' +
-        '<p class="muted">' + esc(L(pt.mistake.note)) + '</p></section>';
+        '<p class="muted">' + esc(L(pt.mistake.note)) + '</p></div>');
     }
+    if (accs) out += '<div class="acc">' + accs + '</div>';
     out += '<div class="panel-foot">' +
       (A.canSpeak() ? '<button type="button" class="btn btn-ghost sm" data-act="speakText" data-text="' + esc(en) + '">' + icon('speaker') + esc(t('act.listenpart')) + '</button>' : '<span></span>') +
       '<div class="pn"><button type="button" class="btn sm" data-act="partNav" data-dir="-1" data-key="pprev"' + (idx <= 0 ? ' disabled' : '') + '>' + icon('arrow-left') + esc(t('act.prev')) + '</button>' +
@@ -145,7 +177,7 @@
 
   function panelQuiz(mod) {
     var v = A.state.view, q = v.quiz, order = partOrder(mod), doneN = order.filter(function (x) { return v.quizDone[x]; }).length;
-    var out = '<div class="panel-head"><div><h3>' + esc(t('qz.title')) + '</h3><p class="muted">' + esc(t('qz.score', { first: v.score.first, total: v.score.total })) + ' · ' + esc(t('qz.progress', { n: doneN, total: order.length })) + '</p></div></div>';
+    var out = '<div class="qz-wrap"><div class="panel-head"><div><h3>' + esc(t('qz.title')) + '</h3><p class="muted">' + esc(t('qz.score', { first: v.score.first, total: v.score.total })) + ' · ' + esc(t('qz.progress', { n: doneN, total: order.length })) + '</p></div></div>';
     if (!q) {
       out += '<p>' + esc(t('qz.start')) + '</p>';
       if (doneN === order.length && order.length) out += '<p class="ok-msg">' + icon('check') + esc(t('qz.alldone')) + '</p>';
@@ -157,20 +189,20 @@
       }).join('') + '</ul>';
       if (q.wrong.length && !q.done) out += '<p class="bad-msg" role="alert">' + icon('x') + esc(t('qz.wrong')) + '</p>';
       if (q.done) {
-        out += '<p class="ok-msg" role="status">' + icon('check') + esc(t(q.wrong.length ? 'qz.right2' : 'qz.right')) + '</p><section><h4>' + esc(t('mv.what')) + '</h4><p>' + esc(L(pt.fn)) + '</p></section>';
+        out += '<p class="ok-msg" role="status">' + icon('check') + esc(t(q.wrong.length ? 'qz.right2' : 'qz.right')) + '</p><h4>' + icon('info') + esc(t('mv.what')) + '</h4><p class="fn">' + esc(L(pt.fn)) + '</p>';
         var nxt = order.filter(function (x) { return !v.quizDone[x]; })[0];
         if (nxt) out += '<button type="button" class="btn" data-act="quizNext" data-key="qnext">' + esc(t('qz.next')) + icon('arrow-right') + '</button>';
         else out += '<p class="ok-msg">' + icon('check') + esc(t('qz.alldone')) + '</p>';
       }
     }
-    out += '<p><button type="button" class="btn btn-ghost sm" data-act="quizReset">' + esc(t('qz.reset')) + '</button></p>';
+    out += '<p><button type="button" class="btn btn-ghost sm" data-act="quizReset">' + esc(t('qz.reset')) + '</button></p></div>';
     return out;
   }
 
   function panelLabel(mod) {
     var v = A.state.view, lb = v.label, order = partOrder(mod);
     var left = lb.order.filter(function (x) { return !lb.done[x]; });
-    var out = '<div class="panel-head"><div><h3>' + esc(t('lb.title')) + '</h3><p class="muted">' + esc(t('qz.progress', { n: order.length - left.length, total: order.length })) + '</p></div></div><p>' + esc(t('lb.how')) + '</p>';
+    var out = '<div class="qz-wrap"><div class="panel-head"><div><h3>' + esc(t('lb.title')) + '</h3><p class="muted">' + esc(t('qz.progress', { n: order.length - left.length, total: order.length })) + '</p></div></div><p>' + esc(t('lb.how')) + '</p>';
     if (left.length) {
       out += '<ul class="chips big" aria-label="' + esc(t('lb.labels')) + '">' + left.map(function (x) {
         return '<li><button type="button" class="chip drag" draggable="true" data-act="labelChip" data-chip="' + x + '" data-key="chip-' + x + '" aria-pressed="' + (lb.sel === x) + '">' + icon('grip') + '<span>' + esc(L(mod.parts[x].name)) + '</span></button></li>';
@@ -178,7 +210,7 @@
     } else {
       out += '<p class="ok-msg" role="status">' + icon('check') + esc(t('lb.alldone')) + '</p>';
     }
-    out += '<p class="lb-msg" role="status">' + (lb.msg ? esc(lb.msg) : '') + '</p><p><button type="button" class="btn btn-ghost sm" data-act="labelReset">' + esc(t('lb.reset')) + '</button></p>';
+    out += '<p class="lb-msg" role="status">' + (lb.msg ? esc(lb.msg) : '') + '</p><p><button type="button" class="btn btn-ghost sm" data-act="labelReset">' + esc(t('lb.reset')) + '</button></p></div>';
     return out;
   }
 
@@ -190,6 +222,8 @@
     A.rerender();
   };
   A.acts.setRate = function (el) { A.state.ui.rate = parseFloat(el.dataset.v); A.rerender(); };
+  A.acts.accToggle = function (el) { var v = A.state.view; v.acc = v.acc === el.dataset.sec ? null : el.dataset.sec; A.rerender(); };
+  A.acts.moreTips = function () { var v = A.state.view; v.moreTips = !v.moreTips; A.rerender(); };
   A.acts.selPart = function (el) {
     var v = A.state.view, mod = currentModel(), part = el.dataset.part;
     if (v.mode === 'label') { labelClickChip(mod, +el.dataset.seg); return; }

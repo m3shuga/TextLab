@@ -4,9 +4,9 @@ A free site where Norwegian students in 8th–10th grade can look up how to writ
 clickable model texts at three levels, a phrase bank, practice tasks, checklists and checked links.
 The interface is English with a Norwegian (bokmål) switch, and every model text has an optional Norwegian translation.
 
-**Status: Phase 1 (draft).** Finished: the app shell and the module *Emails and letters*
-(4 model texts × 3 levels). Planned: Diary entry, Short story, Argumentative text, Grammar,
-Sources and citation (APA 7th), Dictionary skills.
+**Status: Phase 2 (draft).** Finished: the app shell and four writing modules: *Emails and letters* (4 model texts),
+*Diary entry*, *Short story* and *Argumentative text* (each with 3 levels). The argumentative model essay uses real sources in APA 7th style.
+Planned: Grammar, Sources and citation (APA 7th), Dictionary skills.
 
 ## Licence
 All rights reserved, free to use online. See the file `LICENSE`.
@@ -25,11 +25,14 @@ HOW-TO-ADD-CONTENT.md how to add and edit content (English + Norwegian)
 css/style.css         colours and layout (the colour palette is at the top)
 js/config.js          the name of the site, owner and contact
 js/i18n.js            all buttons and labels in English and Norwegian
-js/*.js               the program (no need to edit)
+js/*.js               the program (no need to edit; hero.js is the writing hand on the home page)
 content/index.js      the list of modules
 content/email-letter.js   the module Emails and letters
+content/diary.js          the module Diary entry
+content/short-story.js    the module Short story
+content/argumentative.js  the module Argumentative text (with real sources, APA 7th)
 content/template-copy-me.js   a template for a new module
-fonts/                Lexend and Atkinson Hyperlegible (SIL Open Font License)
+fonts/                Lexend, Atkinson Hyperlegible and Caveat (SIL Open Font License)
 assets/               logo and icon
 ```
 

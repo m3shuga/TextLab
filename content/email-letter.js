@@ -21,7 +21,7 @@
       'Ingrid writes to Tom, a friend she met on holiday in England.',
       'Ingrid skriver til Tom, en venn hun ble kjent med på ferie i England.'),
     levels: {
-      1: { reviewed: false, segments: [
+      1: { reviewed: true, segments: [
         seg('recipient-subject', 'To: tom.wilson@mail.co.uk\nSubject: Snow and skiing!', 'Til: tom.wilson@mail.co.uk\nEmne: Snø og ski!'),
         seg('greeting', 'Hi Tom,', 'Hei Tom,'),
         seg('opening', 'How are you? I hope you are fine. Thanks for your email. I laughed at your story about the football match!', 'Hvordan har du det? Jeg håper du har det bra. Takk for e-posten din. Jeg lo av historien din om fotballkampen!'),
@@ -30,7 +30,7 @@
         seg('closing', 'Write back soon and tell me about your week!', 'Skriv snart tilbake og fortell meg om uken din!'),
         seg('signoff', 'Best wishes,\nIngrid', 'Beste hilsener,\nIngrid')
       ] },
-      2: { reviewed: false, segments: [
+      2: { reviewed: true, segments: [
         seg('recipient-subject', 'To: tom.wilson@mail.co.uk\nSubject: Snow and skiing!', 'Til: tom.wilson@mail.co.uk\nEmne: Snø og ski!'),
         seg('greeting', 'Hi Tom,', 'Hei Tom,'),
         seg('opening', 'How are you? I hope everything is good in Manchester! Thanks for your last email. Your story about the football match made me laugh.', 'Hvordan går det? Jeg håper alt er bra i Manchester! Takk for den forrige e-posten din. Historien din om fotballkampen fikk meg til å le.'),
@@ -39,7 +39,7 @@
         seg('closing', 'Write back soon and tell me what you\'ve been up to!', 'Skriv snart tilbake og fortell meg hva du har holdt på med!'),
         seg('signoff', 'Best wishes,\nIngrid', 'Beste hilsener,\nIngrid')
       ] },
-      3: { reviewed: false, segments: [
+      3: { reviewed: true, segments: [
         seg('recipient-subject', 'To: tom.wilson@mail.co.uk\nSubject: Snow and skiing!', 'Til: tom.wilson@mail.co.uk\nEmne: Snø og ski!'),
         seg('greeting', 'Hi Tom,', 'Hei Tom,'),
         seg('opening', 'How are you? I hope everything is going well in Manchester and that your team has finally won a match! Thanks for your last email. Your story about the football match made me laugh so much that my little brother asked what was wrong with me.', 'Hvordan går det? Jeg håper alt går bra i Manchester, og at laget ditt endelig har vunnet en kamp! Takk for den forrige e-posten din. Historien din om fotballkampen fikk meg til å le så mye at lillebroren min spurte hva som var galt med meg.'),
@@ -123,7 +123,7 @@
       'Ingrid wants to go on an English course this summer and asks a language school in Brighton for more information. She does not know the name of the reader.',
       'Ingrid vil gå på et engelskkurs i sommer og spør en språkskole i Brighton om mer informasjon. Hun vet ikke navnet på den som leser e-posten.'),
     levels: {
-      1: { reviewed: false, segments: [
+      1: { reviewed: true, segments: [
         seg('recipient-subject', 'To: info@brightonlanguagecentre.co.uk\nSubject: Question about summer English course', 'Til: info@brightonlanguagecentre.co.uk\nEmne: Spørsmål om engelskkurs i sommer'),
         seg('greeting', 'Dear Sir or Madam,', 'Til den det angår,'),
         seg('purpose', 'I am writing about your summer English course for teenagers.', 'Jeg skriver angående sommerkurset deres i engelsk for ungdom.'),
@@ -132,7 +132,7 @@
         seg('signoff', 'Yours faithfully,', 'Med vennlig hilsen,'),
         seg('full-name', 'Ingrid Berg', 'Ingrid Berg')
       ] },
-      2: { reviewed: false, segments: [
+      2: { reviewed: true, segments: [
         seg('recipient-subject', 'To: info@brightonlanguagecentre.co.uk\nSubject: Enquiry about summer English course', 'Til: info@brightonlanguagecentre.co.uk\nEmne: Henvendelse om engelskkurs i sommer'),
         seg('greeting', 'Dear Sir or Madam,', 'Til den det angår,'),
         seg('purpose', 'I am writing to {enquire|inquire} about your summer English course for teenagers, which I found on your website.', 'Jeg skriver for å forhøre meg om sommerkurset deres i engelsk for ungdom, som jeg fant på nettsiden deres.'),
@@ -141,7 +141,7 @@
         seg('signoff', '{Yours faithfully,|Sincerely,}', 'Med vennlig hilsen,'),
         seg('full-name', 'Ingrid Berg', 'Ingrid Berg')
       ] },
-      3: { reviewed: false, segments: [
+      3: { reviewed: true, segments: [
         seg('recipient-subject', 'To: info@brightonlanguagecentre.co.uk\nSubject: Enquiry about summer English course for teenagers', 'Til: info@brightonlanguagecentre.co.uk\nEmne: Henvendelse om sommerkurs i engelsk for ungdom'),
         seg('greeting', 'Dear Sir or Madam,', 'Til den det angår,'),
         seg('purpose', 'I am writing to {enquire|inquire} about the summer English course for teenagers that is advertised on your website.', 'Jeg skriver for å forhøre meg om sommerkurset i engelsk for ungdom som er annonsert på nettsiden deres.'),
@@ -225,7 +225,7 @@
       'Ingrid has stayed for a week with a host family in York. Now she writes a thank-you letter by hand and posts it.',
       'Ingrid har bodd en uke hos en vertsfamilie i York. Nå skriver hun et takkebrev for hånd og sender det i posten.'),
     levels: {
-      1: { reviewed: false, segments: [
+      1: { reviewed: true, segments: [
         seg('your-address', 'Storgata 12\n4006 Stavanger\nNorway', 'Storgata 12\n4006 Stavanger\nNorge', R),
         seg('date', '{16 November 2026|November 16, 2026}', '16. november 2026', R),
         seg('greeting', 'Dear Sarah and James,', 'Kjære Sarah og James,'),
@@ -236,7 +236,7 @@
         seg('signoff', 'Lots of love,', 'Masse kjærlighet,'),
         seg('name', 'Ingrid', 'Ingrid')
       ] },
-      2: { reviewed: false, segments: [
+      2: { reviewed: true, segments: [
         seg('your-address', 'Storgata 12\n4006 Stavanger\nNorway', 'Storgata 12\n4006 Stavanger\nNorge', R),
         seg('date', '{16 November 2026|November 16, 2026}', '16. november 2026', R),
         seg('greeting', 'Dear Sarah and James,', 'Kjære Sarah og James,'),
@@ -247,7 +247,7 @@
         seg('signoff', 'Lots of love,', 'Masse kjærlighet,'),
         seg('name', 'Ingrid', 'Ingrid')
       ] },
-      3: { reviewed: false, segments: [
+      3: { reviewed: true, segments: [
         seg('your-address', 'Storgata 12\n4006 Stavanger\nNorway', 'Storgata 12\n4006 Stavanger\nNorge', R),
         seg('date', '{16 November 2026|November 16, 2026}', '16. november 2026', R),
         seg('greeting', 'Dear Sarah and James,', 'Kjære Sarah og James,'),
@@ -343,7 +343,7 @@
       'Ingrid applies for a summer job as an assistant in the kids\' club at a holiday park in England. She knows the name of the manager.',
       'Ingrid søker sommerjobb som assistent i barneklubben på en feriepark i England. Hun vet navnet på lederen.'),
     levels: {
-      1: { reviewed: false, segments: [
+      1: { reviewed: true, segments: [
         seg('your-address', 'Storgata 12\n4006 Stavanger\nNorway', 'Storgata 12\n4006 Stavanger\nNorge', R),
         seg('recipient-address', '{Ms|Ms.} Emma Clarke\nManager\nSeaview Holiday Park\nBeach Road\nNewquay\nUnited Kingdom', 'Fru Emma Clarke\nSjef\nSeaview Holiday Park\nBeach Road\nNewquay\nStorbritannia'),
         seg('date', '{16 November 2026|November 16, 2026}', '16. november 2026', R),
@@ -356,7 +356,7 @@
         seg('signoff', 'Yours sincerely,', 'Med vennlig hilsen,'),
         seg('signature-name', '(signature)\nIngrid Berg', '(underskrift)\nIngrid Berg')
       ] },
-      2: { reviewed: false, segments: [
+      2: { reviewed: true, segments: [
         seg('your-address', 'Storgata 12\n4006 Stavanger\nNorway', 'Storgata 12\n4006 Stavanger\nNorge', R),
         seg('recipient-address', '{Ms|Ms.} Emma Clarke\nManager\nSeaview Holiday Park\nBeach Road\nNewquay\nUnited Kingdom', 'Fru Emma Clarke\nSjef\nSeaview Holiday Park\nBeach Road\nNewquay\nStorbritannia'),
         seg('date', '{16 November 2026|November 16, 2026}', '16. november 2026', R),
@@ -370,7 +370,7 @@
         seg('signoff', '{Yours sincerely,|Sincerely,}', 'Med vennlig hilsen,'),
         seg('signature-name', '(signature)\nIngrid Berg', '(underskrift)\nIngrid Berg')
       ] },
-      3: { reviewed: false, segments: [
+      3: { reviewed: true, segments: [
         seg('your-address', 'Storgata 12\n4006 Stavanger\nNorway', 'Storgata 12\n4006 Stavanger\nNorge', R),
         seg('recipient-address', '{Ms|Ms.} Emma Clarke\nManager\nSeaview Holiday Park\nBeach Road\nNewquay\nUnited Kingdom', 'Fru Emma Clarke\nSjef\nSeaview Holiday Park\nBeach Road\nNewquay\nStorbritannia'),
         seg('date', '{16 November 2026|November 16, 2026}', '16. november 2026', R),

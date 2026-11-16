@@ -27,7 +27,7 @@
     top5: [ t('Rule one', 'Regel én'), t('Rule two', 'Regel to'), t('Rule three', 'Regel tre'), t('Rule four', 'Regel fire'), t('Rule five', 'Regel fem') ],
 
     models: [{
-      id: 'my-model', kind: 'letter',          // kind: 'email' or 'letter' (changes the paper style)
+      id: 'my-model', kind: 'letter',          // kind: 'email', 'letter', 'diary', 'story' or 'essay' (changes the paper style)
       register: 'neutral',                     // 'formal', 'informal' or 'neutral'
       title: t('My model text', 'Min modelltekst'),
       situation: t('Who writes to whom, and why.', 'Hvem som skriver til hvem, og hvorfor.'),
@@ -79,6 +79,9 @@
       // sort:  { id, type:'sort', level, q, buckets:[t('A','A'), t('B','B')], items:[{text:'x', b:0}, {text:'y', b:1}], why }
       // order: { id, type:'order', level, q, items:['first','second','third'], why }   (items are in the CORRECT order)
     ],
+
+    // Optional extra boxes on the overview page: stages (curve/blocks), cards, table, pairs.
+    // See content/short-story.js for examples.  explainers: [],
 
     checklist: [
       { group: t('Before you hand in', 'Før du leverer'), items: [ t('I have read my text again.', 'Jeg har lest teksten min én gang til.') ] }

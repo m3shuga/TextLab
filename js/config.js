@@ -3,10 +3,10 @@ window.APP = window.APP || {};
 APP.config = {
   name: 'TextLab',                 // working name: change when you have chosen
   nameParts: ['Text', 'Lab'],      // wordmark in two colours
-  owner: '[YOUR NAME]',            // used in the copyright line
-  contact: '[CONTACT: to be added]',
+  owner: 'André Espelid',          // used in the copyright line
+  contact: 'lektorespelid@gmail.com',
   year: 2026,
-  version: 'Phase 1 (draft)',
+  version: 'Phase 2 (draft)',
   tagline: {
     en: 'Look up how to write in English.',
     nb: 'Slå opp hvordan du skriver på engelsk.'

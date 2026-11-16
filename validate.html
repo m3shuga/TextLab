@@ -35,6 +35,7 @@
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
   // K-codes (same list as the site; kept short here)
+  var TARGETS = { email: { 1: [80, 130], 2: [130, 200], 3: [200, 280] }, letter: { 1: [80, 130], 2: [130, 200], 3: [200, 280] }, diary: { 1: [90, 150], 2: [150, 230], 3: [230, 330] }, story: { 1: [150, 240], 2: [230, 370], 3: [370, 520] }, essay: { 1: [150, 260], 2: [300, 460], 3: [450, 620] } };
   var KNOWN_K = ['K1','K2','K3','K4','K5','K6','K7','K8','K9','K10','K11'];
 
   // walk any object and find {en, nb} pairs with a missing side
@@ -68,7 +69,7 @@
     (m.models || []).forEach(function (mod) {
       var mw = w + ' / ' + mod.id;
       walk({ title: mod.title, situation: mod.situation, parts: mod.parts }, '', mw);
-      var partIds = Object.keys(mod.parts || {}), used = {}, nums = {};
+      var partIds = Object.keys(mod.parts || {}), used = {}, nums = {}, usedAny = {};
       partIds.forEach(function (id) {
         var p = mod.parts[id];
         if (!p.cat || ['format','structure','language','tone'].indexOf(p.cat) < 0) add('fail', mw, 'Part "' + id + '" has no valid category');
@@ -89,11 +90,12 @@
           words += String(s.text).replace(/\{([^{}|]*)\|([^{}]*)\}/g, '$1').replace(/[-–]/g, ' ').trim().split(/\s+/).length;
           if (seen.indexOf(s.part) < 0) seen.push(s.part);
         });
-        partIds.forEach(function (id) { if (seen.indexOf(id) < 0) add('fail', mw + ' L' + lv, 'Part "' + id + '" is not used in this level'); });
-        var target = { 1: [80, 130], 2: [130, 200], 3: [200, 280] }[lv];
-        if (mod.kind && (mod.kind === 'email' || mod.kind === 'letter') && (words < target[0] || words > target[1])) add('warn', mw + ' L' + lv, words + ' words (target ' + target[0] + '–' + target[1] + ')');
+        seen.forEach(function (id) { usedAny[id] = 1; });
+        var target = (TARGETS[mod.kind] || {})[lv];
+        if (target && (words < target[0] || words > target[1])) add('warn', mw + ' L' + lv, words + ' words (target ' + target[0] + '–' + target[1] + ')');
         else add('ok', mw + ' L' + lv, words + ' words, ' + d.segments.length + ' segments' + (d.reviewed ? ', reviewed' : ', DRAFT (not reviewed)'));
       });
+      partIds.forEach(function (id) { if (!usedAny[id]) add('fail', mw, 'Part "' + id + '" is not used in any level'); });
     });
     if (unreviewed) add('warn', w, unreviewed + ' of ' + levels + ' model texts are not yet reviewed by the teacher (set reviewed: true when you approve each one)');
 

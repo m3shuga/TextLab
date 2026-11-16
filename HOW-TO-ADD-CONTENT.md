@@ -28,6 +28,19 @@ from the list in `content/index.js`. You never need to change the program files 
 - Level targets for emails and letters: Level 1 about 80–130 words, Level 2 130–200, Level 3 200–280.
   `validate.html` warns when a text is outside these.
 
+### More things a module can have
+- **`kind`** of a model text changes how the "paper" looks: `email`, `letter`, `diary` (ruled notebook paper), `story` (book page), `essay`.
+- **Paragraphs with several clickable sentences** (used in the essay): give the segments the same paragraph name, for example
+  `seg('evidence', '…', '…', { p: 'b1' })`. Segments with the same `p` that follow each other become one paragraph.
+- **Segment flags** (the last value of `seg(...)`): `{ t: 1 }` title style, `{ b: 1 }` bold, `{ a: 'r' }` right aligned,
+  `{ ref: 1 }` an APA reference with hanging indent, `{ p: 'name' }` inline paragraph.
+- **Italics:** write `*title*` (used for titles in APA references).
+- **`explainers`** are extra boxes on the overview page. Four types: `stages` (with `style: 'curve'` or `'blocks'`, linked to parts),
+  `cards` (tell / show), `table` and `pairs` (wrong / right). Look at `content/short-story.js` and `content/argumentative.js` for examples.
+- **Link straight to a part:** `#/m/<module>/models/<model>/<part>`, for example `#/m/argumentative/models/phones-essay/thesis`.
+- **Real sources:** if a model text cites sources, check every fact against the source and every reference detail (author, year, title,
+  DOI) before you publish. Write the check date in a comment at the top of the file.
+
 ### Edit existing text
 Open the module file, find the text, change it (both the English and the Norwegian), save, and check with `validate.html`.
 
@@ -60,6 +73,19 @@ Hver teksttype eller hvert tema er en **modul**: én fil i mappen `content`. Sid
 - Ikke kopier andres tekster. Skriv egne forklaringer og lenk til kilden.
 - Lengdemål for e-post og brev: nivå 1 ca. 80–130 ord, nivå 2 130–200, nivå 3 200–280.
   `validate.html` gir en advarsel hvis en tekst ligger utenfor.
+
+### Flere ting en modul kan ha
+- **`kind`** på en modelltekst endrer «papirutseendet»: `email`, `letter`, `diary` (linjert skriveblokk), `story` (bokside), `essay`.
+- **Avsnitt med flere klikkbare setninger** (brukt i essayet): gi segmentene samme avsnittsnavn, for eksempel
+  `seg('evidence', '…', '…', { p: 'b1' })`. Segmenter med samme `p` som kommer etter hverandre blir ett avsnitt.
+- **Segmentflagg** (siste verdi i `seg(...)`): `{ t: 1 }` tittelstil, `{ b: 1 }` fet, `{ a: 'r' }` høyrejustert,
+  `{ ref: 1 }` en APA-kilde med hengende innrykk, `{ p: 'navn' }` avsnitt med flere setninger.
+- **Kursiv:** skriv `*tittel*` (brukt for titler i APA-kilder).
+- **`explainers`** er ekstra bokser på oversiktssiden. Fire typer: `stages` (med `style: 'curve'` eller `'blocks'`, knyttet til deler),
+  `cards` (fortelle / vise), `table` og `pairs` (feil / riktig). Se `content/short-story.js` og `content/argumentative.js` for eksempler.
+- **Lenke rett til en del:** `#/m/<modul>/models/<modell>/<del>`, for eksempel `#/m/argumentative/models/phones-essay/thesis`.
+- **Ekte kilder:** hvis en modelltekst viser til kilder, må du kontrollere hvert faktum mot kilden og hver detalj i kildelisten
+  (forfatter, år, tittel, DOI) før du publiserer. Skriv datoen du kontrollerte i en kommentar øverst i filen.
 
 ### Endre eksisterende tekst
 Åpne modulfilen, finn teksten, endre den (både engelsk og norsk), lagre, og sjekk med `validate.html`.

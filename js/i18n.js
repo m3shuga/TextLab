@@ -234,6 +234,20 @@ window.APP = window.APP || {};
     'cr.pending': u('Candidate links not yet checked', 'Kandidatlenker som ikke er sjekket ennå'),
     'cr.pendingnote': u('These could not be checked automatically. Open each one in your browser, and if it is good, move it into the module\'s resources list.', 'Disse kunne ikke sjekkes automatisk. Åpne hver av dem i nettleseren din, og hvis den er bra, flytt den til modulens ressursliste.'),
 
+    /* hero + explainers + info box */
+    'hero.pause': u('Pause animation', 'Pause animasjonen'),
+    'hero.play': u('Play animation', 'Spill av animasjonen'),
+    'mv.more': u('Show {n} more tips', 'Vis {n} tips til'),
+    'mv.fewer': u('Show fewer tips', 'Vis færre tips'),
+    'ex.tension': u('Excitement', 'Spenning'),
+    'ex.time': u('Time', 'Tid'),
+    'ex.pick': u('Click a step to read about it.', 'Klikk på et trinn for å lese om det.'),
+    'ex.show': u('Show it in the model text', 'Vis det i modellteksten'),
+    'ex.tell.s': u('TELL', 'FORTELLE'),
+    'ex.show.s': u('SHOW', 'VISE'),
+    'ex.tap': u('Click to see how to show it', 'Klikk for å se hvordan du viser det'),
+    'ex.tap.back': u('Click to go back', 'Klikk for å gå tilbake'),
+
     'nf.title': u('Page not found', 'Fant ikke siden'),
     'nf.text': u('This page does not exist (yet).', 'Denne siden finnes ikke (ennå).')
   };

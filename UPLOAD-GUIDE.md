@@ -65,8 +65,7 @@ Tip: keep a copy of the site folder on your own computer as a backup, with a dat
 - GitHub treats `Index.html` and `index.html` as different files. Keep the same spelling everywhere.
 
 ## F. Your licence
-The file `LICENSE` says: **all rights reserved, free to use online**. Open it and replace
-`[YOUR NAME]` and `[CONTACT: to be added]` with your own details before you upload.
-Also change `owner` and `contact` in `js/config.js`.
+The file `LICENSE` says: **all rights reserved, free to use online**. Your name and contact are already filled in
+(also in `js/config.js`). If you ever change your contact details, change them in both places.
 Public repositories can still be viewed and forked by other GitHub users under GitHub's own terms.
 The licence is legal protection, not a technical lock. If you are unsure, ask your school owner about publishing teaching materials under your name.

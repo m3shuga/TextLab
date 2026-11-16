@@ -3,13 +3,14 @@
    rename it (lowercase, no spaces, no æøå), fill it in, and add its
    file name (without .js) to the list below. Nothing else needs to change. */
 APP.moduleFiles = [
-  'email-letter'
-  // , 'diary'
-  // , 'short-story'
-  // , 'argumentative'
+  'email-letter',
+  'diary',
+  'short-story',
+  'argumentative'
 ];
 
-/* Modules that are planned but not built yet. They show as "Coming soon" on the home page. */
+/* Modules that are planned but not built yet. They show as "Coming soon" on the home page.
+   A planned module disappears from this list by itself when a built module has the same id. */
 APP.comingSoon = [
   { group: 'write', id: 'diary', icon: 'pen', title: { en: 'Diary entry', nb: 'Dagboknotat' } },
   { group: 'write', id: 'short-story', icon: 'book', title: { en: 'Short story', nb: 'Novelle' } },

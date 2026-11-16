@@ -94,12 +94,13 @@
       return '<span class="var" title="UK: ' + a + ' · US: ' + b + '">' + (us ? b : a) + '</span>';
     });
     s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*([^*\n]+?)\*/g, '<em class="it">$1</em>');   // *italic* (used for APA titles)
     return s.replace(/\n/g, '<br>');
   };
   // plain(): the same text without markup (for copy and read-aloud)
   A.plain = function (s) {
     var us = A.state.prefs.variety === 'us';
-    return String(s == null ? '' : s).replace(/\{([^{}|]*)\|([^{}]*)\}/g, function (m, a, b) { return us ? b : a; }).replace(/\*\*(.+?)\*\*/g, '$1');
+    return String(s == null ? '' : s).replace(/\{([^{}|]*)\|([^{}]*)\}/g, function (m, a, b) { return us ? b : a; }).replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*([^*\n]+?)\*/g, '$1');
   };
   A.icon = function (n, cls) { return '<svg class="ic' + (cls ? ' ' + cls : '') + '" aria-hidden="true" focusable="false"><use href="#i-' + n + '"/></svg>'; };
   A.$ = function (s, r) { return (r || document).querySelector(s); };
@@ -150,7 +151,7 @@
     var p = h.split('/').filter(Boolean).map(function (x) { try { return decodeURIComponent(x); } catch (e) { return x; } });
     var r;
     if (!p.length) r = { name: 'home' };
-    else if (p[0] === 'm') r = { name: 'module', id: p[1], tab: p[2] || 'overview', sub: p[3] || null };
+    else if (p[0] === 'm') r = { name: 'module', id: p[1], tab: p[2] || 'overview', sub: p[3] || null, part: p[4] || null };
     else if (p[0] === 'about') r = { name: 'about' };
     else if (p[0] === 'credits') r = { name: 'credits' };
     else r = { name: 'notfound' };
@@ -213,6 +214,8 @@
       if (el && A.inputs[el.dataset.input]) A.inputs[el.dataset.input](el, e);
     });
     document.addEventListener('keydown', function (e) {
+      var rb = e.target && e.target.getAttribute && e.target.getAttribute('role') === 'button' && e.target.dataset && e.target.dataset.act;
+      if (rb && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); e.target.click(); return; }
       if (e.key === 'Escape' && A.state.ui.settings) { A.state.ui.settings = false; A.renderChrome(); var b = A.$('[data-act="toggleSettings"]'); if (b) b.focus(); }
     });
     window.addEventListener('hashchange', function () {
