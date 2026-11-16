@@ -87,5 +87,34 @@ Hver teksttype eller hvert tema er en **modul**: én fil i mappen `content`. Sid
 - **Ekte kilder:** hvis en modelltekst viser til kilder, må du kontrollere hvert faktum mot kilden og hver detalj i kildelisten
   (forfatter, år, tittel, DOI) før du publiserer. Skriv datoen du kontrollerte i en kommentar øverst i filen.
 
+### Temamoduler (Grammar, Sources, Dictionary)
+Noen moduler har ikke modelltekster, men **temaer** (`topics`). Hvert tema er en egen side: `#/m/<modul>/t/<tema>`.
+Se `content/grammar.js` (fire fulle temaer) og `content/sources.js`.
+
+```js
+topics: [ { id: 'prepositions', icon: 'arrow-right', reviewed: false, curriculum: ['K4','K5'],
+  title: t('Prepositions','Preposisjoner'), blurb: t('…','…'),
+  top5: [ t('…','…') ],                       // «Top 5 things to remember»
+  sections: [ { h: t('Time','Tid'), blocks: [ …blokker… ] } ],
+  practice: [ …oppgaver… ],                   // vises nederst på siden
+  resources: [ … ] } ]                        // valgfritt: lenker for dette temaet
+```
+
+**Blokker** (i `sections[].blocks`): `{ p: t(…) }` avsnitt · `{ ul: [t(…)] }` liste · `{ rule: t(…) }` regelboks ·
+`{ nor: { note, bad, good } }` «Typisk feil for norsktalende» · `{ ex: [ex('English','norsk')] }` eksempler ·
+`{ table: { head: [..], rows: [[..],[..]] } }` · `{ pairs: [{ bad, good, note }] }` · `{ steps: [{ h, p }] }` ·
+`{ lvl: 2, blocks: [...] }` «Neste nivå»-boks som vises først på nivå 2 eller 3 · `{ widget: '…' }`.
+
+**Oppgaver:** `mcq`, `gap`, `sort` og `order` som i modulene over. Legg til `ctx: '…'` på en `mcq` for en kort tekst over spørsmålet.
+
+**Verktøy (widgets):** `widget: 'verbs'` (verbtabell fra `module.verbs`), `'glossary'` (fra `module.glossary`), `'source-check'`
+(spørsmål med `id`, `q`, `look`), `'decider'` (valg med `label`, `tools`, `tip`) og `'apa'` (sitatbygger). Et tema kan ha `widget` på toppnivå.
+
+**Flere filer for én modul:** `grammar-2.js` og `grammar-3.js` utvider `APP.module('grammar')` med `.topics.push(...)`.
+Legg filnavnene i `content/index.js` etter hovedfilen.
+
+**Verbtabellen:** hver rad er `{ b, p, pp, nb, core }` (`core: true` = vanlig verb). Bruk `{learnt|learned}` for UK/US.
+De «vanligste verbene» er valgt av forfatteren, ikke hentet fra en offisiell frekvensliste.
+
 ### Endre eksisterende tekst
 Åpne modulfilen, finn teksten, endre den (både engelsk og norsk), lagre, og sjekk med `validate.html`.

@@ -102,7 +102,8 @@
   /* ---------- module shell ---------- */
   var TABS = ['overview', 'models', 'phrases', 'practice', 'checklist', 'learn'];
   function shell(m, tab, inner, titleSuffix) {
-    var tabs = TABS.filter(function (x) { return x !== 'models' || (m.models && m.models.length); }).map(function (x) {
+    var has = { overview: 1, models: m.models && m.models.length, phrases: m.phraseBank && m.phraseBank.length, practice: m.practice && m.practice.length, checklist: m.checklist && m.checklist.length, learn: m.resources && m.resources.length };
+    var tabs = TABS.filter(function (x) { return has[x]; }).map(function (x) {
       return '<a href="#/m/' + m.id + '/' + x + '"' + (x === tab ? ' aria-current="page"' : '') + '>' + esc(t('tab.' + x)) + '</a>';
     }).join('');
     A.state.title = L(m.title) + (titleSuffix ? ' – ' + titleSuffix : '');
@@ -116,7 +117,10 @@
     var m = A.module(r.id);
     if (!m) return A.views.notfound(r);
     var v = A.state.view;
+    var avail = { models: m.models && m.models.length, phrases: m.phraseBank && m.phraseBank.length, practice: m.practice && m.practice.length, checklist: m.checklist && m.checklist.length, learn: m.resources && m.resources.length };
+    if (r.tab && r.tab !== 't' && !avail[r.tab]) return shell(m, 'overview', overviewHtml(m));   // a tab this module does not have: show the overview
     switch (r.tab) {
+      case 't': return A.topicView ? A.topicView(m, r) : A.views.notfound(r);
       case 'models': return A.modelView(m, r);
       case 'phrases': return shell(m, 'phrases', phrasesHtml(m), t('tab.phrases'));
       case 'practice': return shell(m, 'practice', A.practiceHtml(m), t('tab.practice'));
@@ -205,6 +209,7 @@
       out += '<section aria-labelledby="ukus"><h2 id="ukus">' + esc(t('ov.ukus')) + '</h2><div class="tablewrap"><table class="cmp"><thead><tr><th scope="col"><span class="sr">' + esc(t('ov.feature')) + '</span></th><th scope="col">British (UK)</th><th scope="col">American (US)</th></tr></thead><tbody>' +
         m.ukus.map(function (row) { return '<tr><th scope="row">' + esc(L(row.k)) + '</th><td lang="en">' + esc(row.uk) + '</td><td lang="en">' + esc(row.us) + '</td></tr>'; }).join('') + '</tbody></table></div><p class="muted">' + esc(t('ov.ukusnote')) + '</p></section>';
     }
+    if (m.topics && A.topicCards) out += A.topicCards(m);
     if (m.models && m.models.length) {
       out += '<section aria-labelledby="mods"><h2 id="mods">' + esc(t('ov.try')) + '</h2><div class="cards">' + m.models.map(function (mod) {
         return '<a class="card" href="#/m/' + m.id + '/models/' + mod.id + '"><span class="card-ic">' + icon(mod.kind === 'email' ? 'mail' : 'doc') + '</span><span class="card-t">' + esc(L(mod.title)) + '</span><span class="card-b">' + esc(L(mod.situation)) + '</span><span class="card-go" aria-hidden="true">' + icon('arrow-right') + '</span></a>';
@@ -288,6 +293,7 @@
     }
     return out + '</li>';
   }
+  A.resourceCard = resourceCard;
   function learnHtml(m) {
     var out = '<section><h2 class="sr">' + esc(t('tab.learn')) + '</h2><p class="lead">' + esc(t('res.intro')) + '</p>';
     out += m.resources.length ? '<ul class="reslist">' + m.resources.map(function (r) { return resourceCard(m, r); }).join('') + '</ul>' : '<p class="empty">' + esc(t('res.none')) + '</p>';
@@ -330,6 +336,7 @@
       '<li>Lexend © The Lexend Project Authors, SIL Open Font License 1.1 (<span lang="en">fonts/OFL-lexend.txt</span>)</li>' +
       '<li>Atkinson Hyperlegible © Braille Institute of America, Inc., SIL Open Font License 1.1 (<span lang="en">fonts/OFL-atkinson-hyperlegible.txt</span>)</li>' +
       '<li>Caveat © The Caveat Project Authors, SIL Open Font License 1.1 (<span lang="en">fonts/OFL-caveat.txt</span>)</li>' +
+      '<li>' + esc(t('cr.hershey')) + '</li>' +
       '<li>' + esc(t('cr.fontsrc')) + '</li></ul></section>';
     if (p.teacher) {
       var pend = [];

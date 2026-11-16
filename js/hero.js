@@ -1,119 +1,167 @@
-/* Home page: a line-art hand with an ink pen writes greetings on a sheet of paper.
+/* Home page: a feather quill writes greetings by hand, straight onto the page.
    Decorative only (aria-hidden). It can be paused, it stops by itself after a while,
-   and it is shown as a still picture when the device asks for reduced motion. */
+   and it is shown as a still picture when the device asks for reduced motion.
+   The handwriting is made from the Hershey "Script Simplex" single-line vector font
+   (digitised by Dr. A. V. Hershey, US National Bureau of Standards; public domain),
+   converted to pen strokes so that the quill can follow every letter. */
 (function () {
   'use strict';
   var A = window.APP;
+  var DATA = {"Hi Tom,":{"w":243.5,"s":[[13.5,-31.6,9.0,-33.8,6.8,-38.3,6.8,-40.6,9.0,-45.1,13.5,-47.3,15.8,-47.3,20.3,-45.1,22.5,-40.6,22.5,-36.1,20.3,-27.1,15.8,-13.5,11.3,-4.5,6.8,0.0,2.3,0.0,0.0,-2.3,0.0,-6.8],[13.5,-20.3,33.8,-27.1,38.3,-29.3,45.1,-33.8,49.6,-38.3,51.9,-42.8,51.9,-45.1,49.6,-47.3,47.3,-47.3,42.8,-42.8,38.3,-33.8,33.8,-20.3,31.6,-9.0,31.6,-2.3,33.8,0.0,36.1,0.0,40.6,-2.3,42.8,-4.5,47.3,-11.3],[58.6,-31.6,58.6,-29.3,60.9,-29.3,60.9,-31.6,58.6,-31.6],[51.9,-11.3,56.4,-20.3,51.9,-6.8,51.9,-2.3,54.1,0.0,56.4,0.0,60.9,-2.3,63.1,-4.5,67.6,-11.3],[126.2,-33.8,121.7,-33.8,117.2,-36.1,115.0,-40.6,117.2,-45.1,124.0,-47.3,130.8,-47.3,139.8,-45.1,146.5,-45.1,151.0,-47.3],[139.8,-45.1,135.3,-29.3,130.8,-15.8,126.2,-6.8,121.7,-2.3,117.2,0.0,112.7,0.0,108.2,-2.3,106.0,-6.8,106.0,-11.3,108.2,-13.5,112.7,-13.5,117.2,-11.3],[160.1,-20.3,155.6,-20.3,151.0,-18.0,148.8,-15.8,146.5,-11.3,146.5,-6.8,148.8,-2.3,153.3,0.0,157.8,0.0,162.3,-2.3,164.6,-4.5,166.8,-9.0,166.8,-13.5,164.6,-18.0,160.1,-20.3,157.8,-18.0,157.8,-13.5,160.1,-9.0,164.6,-6.8,171.3,-6.8,175.8,-9.0,178.1,-11.3,182.6,-18.0,187.1,-20.3,189.4,-18.0,189.4,-15.8,187.1,-6.8,184.9,0.0],[187.1,-6.8,189.4,-11.3,193.9,-18.0,198.4,-20.3,202.9,-20.3,205.2,-18.0,205.2,-15.8,202.9,-6.8,200.6,0.0],[202.9,-6.8,205.2,-11.3,209.7,-18.0,214.2,-20.3,218.7,-20.3,220.9,-18.0,220.9,-13.5,218.7,-6.8,218.7,-2.3,220.9,0.0,223.2,0.0,227.7,-2.3,230.0,-4.5,234.5,-11.3],[241.2,0.0,239.0,-2.3,241.2,-4.5,243.5,-2.3,243.5,0.0,241.2,4.5,236.7,9.0]]},"Dear Diary,":{"w":354.0,"s":[[31.6,-47.3,27.1,-45.1,24.8,-40.6,22.5,-31.6,20.3,-18.0,18.0,-11.3,15.8,-6.8,11.3,-2.3,6.8,0.0,2.3,0.0,0.0,-2.3,0.0,-6.8,2.3,-9.0,6.8,-9.0,11.3,-6.8,15.8,-2.3,22.5,0.0,29.3,0.0,36.1,-2.3,40.6,-6.8,45.1,-15.8,47.3,-27.1,47.3,-36.1,45.1,-42.8,42.8,-45.1,38.3,-47.3,31.6,-47.3,27.1,-42.8,27.1,-38.3,29.3,-31.6,33.8,-24.8,38.3,-20.3,45.1,-15.8,49.6,-13.5],[56.4,-4.5,60.9,-6.8,63.1,-9.0,65.4,-13.5,65.4,-18.0,63.1,-20.3,60.9,-20.3,56.4,-18.0,54.1,-13.5,54.1,-6.8,56.4,-2.3,60.9,0.0,65.4,0.0,69.9,-2.3,72.1,-4.5,76.7,-11.3],[96.9,-13.5,94.7,-18.0,90.2,-20.3,85.7,-20.3,81.2,-18.0,78.9,-15.8,76.7,-11.3,76.7,-6.8,78.9,-2.3,83.4,0.0,87.9,0.0,92.4,-2.3,94.7,-6.8,99.2,-20.3,96.9,-9.0,96.9,-2.3,99.2,0.0,101.5,0.0,106.0,-2.3,108.2,-4.5,117.2,-18.0,119.5,-22.5,119.5,-18.0,126.2,-18.0,128.5,-15.8,128.5,-11.3,126.2,-4.5,126.2,-2.3,128.5,0.0,130.8,0.0,135.3,-2.3,137.5,-4.5,142.0,-11.3],[207.4,-47.3,202.9,-45.1,200.6,-40.6,198.4,-31.6,196.1,-18.0,193.9,-11.3,191.6,-6.8,187.1,-2.3,182.6,0.0,178.1,0.0,175.8,-2.3,175.8,-6.8,178.1,-9.0,182.6,-9.0,187.1,-6.8,191.6,-2.3,198.4,0.0,205.2,0.0,211.9,-2.3,216.4,-6.8,220.9,-15.8,223.2,-27.1,223.2,-36.1,220.9,-42.8,218.7,-45.1,214.2,-47.3,207.4,-47.3,202.9,-42.8,202.9,-38.3,205.2,-31.6,209.7,-24.8,214.2,-20.3,220.9,-15.8,225.4,-13.5],[236.7,-31.6,236.7,-29.3,239.0,-29.3,239.0,-31.6,236.7,-31.6],[230.0,-11.3,234.5,-20.3,230.0,-6.8,230.0,-2.3,232.2,0.0,234.5,0.0,239.0,-2.3,241.2,-4.5,245.7,-11.3],[266.0,-13.5,263.8,-18.0,259.3,-20.3,254.8,-20.3,250.2,-18.0,248.0,-15.8,245.7,-11.3,245.7,-6.8,248.0,-2.3,252.5,0.0,257.0,0.0,261.5,-2.3,263.8,-6.8,268.3,-20.3,266.0,-9.0,266.0,-2.3,268.3,0.0,270.5,0.0,275.0,-2.3,277.3,-4.5,286.3,-18.0,288.6,-22.5,288.6,-18.0,295.3,-18.0,297.6,-15.8,297.6,-11.3,295.3,-4.5,295.3,-2.3,297.6,0.0,299.8,0.0,304.4,-2.3,306.6,-4.5,311.1,-11.3,315.6,-20.3,311.1,-6.8,311.1,-2.3,313.4,0.0,317.9,0.0,322.4,-2.3,326.9,-6.8,331.4,-13.5],[333.7,-20.3,320.1,20.3,317.9,24.8,313.4,27.1,311.1,24.8,311.1,20.3,313.4,13.5,320.1,6.8,326.9,2.3,331.4,0.0,338.2,-4.5,344.9,-11.3],[351.7,0.0,349.4,-2.3,351.7,-4.5,354.0,-2.3,354.0,0.0,351.7,4.5,347.2,9.0]]},"Dear Ms Clarke,":{"w":505.0,"s":[[31.6,-47.3,27.1,-45.1,24.8,-40.6,22.5,-31.6,20.3,-18.0,18.0,-11.3,15.8,-6.8,11.3,-2.3,6.8,0.0,2.3,0.0,0.0,-2.3,0.0,-6.8,2.3,-9.0,6.8,-9.0,11.3,-6.8,15.8,-2.3,22.5,0.0,29.3,0.0,36.1,-2.3,40.6,-6.8,45.1,-15.8,47.3,-27.1,47.3,-36.1,45.1,-42.8,42.8,-45.1,38.3,-47.3,31.6,-47.3,27.1,-42.8,27.1,-38.3,29.3,-31.6,33.8,-24.8,38.3,-20.3,45.1,-15.8,49.6,-13.5],[56.4,-4.5,60.9,-6.8,63.1,-9.0,65.4,-13.5,65.4,-18.0,63.1,-20.3,60.9,-20.3,56.4,-18.0,54.1,-13.5,54.1,-6.8,56.4,-2.3,60.9,0.0,65.4,0.0,69.9,-2.3,72.1,-4.5,76.7,-11.3],[96.9,-13.5,94.7,-18.0,90.2,-20.3,85.7,-20.3,81.2,-18.0,78.9,-15.8,76.7,-11.3,76.7,-6.8,78.9,-2.3,83.4,0.0,87.9,0.0,92.4,-2.3,94.7,-6.8,99.2,-20.3,96.9,-9.0,96.9,-2.3,99.2,0.0,101.5,0.0,106.0,-2.3,108.2,-4.5,117.2,-18.0,119.5,-22.5,119.5,-18.0,126.2,-18.0,128.5,-15.8,128.5,-11.3,126.2,-4.5,126.2,-2.3,128.5,0.0,130.8,0.0,135.3,-2.3,137.5,-4.5,142.0,-11.3],[189.4,-31.6,184.9,-33.8,182.6,-38.3,182.6,-40.6,184.9,-45.1,189.4,-47.3,191.6,-47.3,196.1,-45.1,198.4,-40.6,198.4,-36.1,196.1,-24.8,193.9,-15.8,189.4,0.0],[193.9,-15.8,200.6,-33.8,205.2,-42.8,207.4,-45.1,211.9,-47.3,214.2,-47.3,218.7,-45.1,220.9,-40.6,220.9,-36.1,218.7,-24.8,216.4,-15.8,211.9,0.0],[216.4,-15.8,223.2,-33.8,227.7,-42.8,230.0,-45.1,234.5,-47.3,236.7,-47.3,241.2,-45.1,243.5,-40.6,243.5,-36.1,241.2,-24.8,236.7,-9.0,236.7,-2.3,239.0,0.0,241.2,0.0,245.7,-2.3,248.0,-4.5,257.0,-18.0,259.3,-22.5,259.3,-18.0,263.8,-11.3,266.0,-6.8,266.0,-2.3,261.5,0.0],[252.5,-2.3,257.0,0.0,266.0,0.0,270.5,-2.3,272.8,-4.5,277.3,-11.3],[340.4,-33.8,340.4,-31.6,342.7,-29.3,347.2,-29.3,351.7,-31.6,354.0,-36.1,354.0,-40.6,351.7,-45.1,347.2,-47.3,340.4,-47.3,333.7,-45.1,329.2,-40.6,324.6,-33.8,322.4,-29.3,320.1,-20.3,320.1,-11.3,322.4,-4.5,324.6,-2.3,329.2,0.0,333.7,0.0,340.4,-2.3,344.9,-6.8,347.2,-11.3],[358.5,-11.3,363.0,-18.0,369.7,-29.3,372.0,-33.8,374.2,-40.6,374.2,-45.1,372.0,-47.3,367.5,-45.1,365.2,-40.6,363.0,-31.6,360.7,-15.8,360.7,-2.3,363.0,0.0,365.2,0.0,369.7,-2.3,372.0,-4.5,376.5,-11.3],[396.8,-13.5,394.5,-18.0,390.0,-20.3,385.5,-20.3,381.0,-18.0,378.8,-15.8,376.5,-11.3,376.5,-6.8,378.8,-2.3,383.3,0.0,387.8,0.0,392.3,-2.3,394.5,-6.8,399.0,-20.3,396.8,-9.0,396.8,-2.3,399.0,0.0,401.3,0.0,405.8,-2.3,408.1,-4.5,417.1,-18.0,419.3,-22.5,419.3,-18.0,426.1,-18.0,428.3,-15.8,428.3,-11.3,426.1,-4.5,426.1,-2.3,428.3,0.0,430.6,0.0,435.1,-2.3,437.4,-4.5,446.4,-18.0,453.1,-29.3,455.4,-33.8,457.7,-40.6,457.7,-45.1,455.4,-47.3,450.9,-45.1,448.6,-40.6,446.4,-31.6,444.1,-18.0,441.9,0.0,444.1,-6.8,446.4,-11.3,450.9,-18.0,455.4,-20.3,459.9,-20.3,462.2,-18.0,462.2,-13.5,457.7,-11.3,450.9,-11.3,455.4,-9.0,457.7,-2.3,459.9,0.0,462.2,0.0,466.7,-2.3,468.9,-4.5,473.4,-11.3],[475.7,-4.5,480.2,-6.8,482.5,-9.0,484.7,-13.5,484.7,-18.0,482.5,-20.3,480.2,-20.3,475.7,-18.0,473.4,-13.5,473.4,-6.8,475.7,-2.3,480.2,0.0,484.7,0.0,489.2,-2.3,491.5,-4.5,496.0,-11.3],[502.7,0.0,500.5,-2.3,502.7,-4.5,505.0,-2.3,505.0,0.0,502.7,4.5,498.2,9.0]]},"Yours sincerely,":{"w":444.1,"s":[[6.8,-31.6,2.3,-33.8,0.0,-38.3,0.0,-40.6,2.3,-45.1,6.8,-47.3,9.0,-47.3,13.5,-45.1,15.8,-40.6,15.8,-36.1,13.5,-27.1,11.3,-20.3,9.0,-11.3,9.0,-6.8,11.3,-2.3,13.5,0.0,18.0,0.0,22.5,-2.3,27.1,-6.8,31.6,-13.5,33.8,-18.0,38.3,-31.6],[42.8,-47.3,38.3,-31.6,31.6,-9.0,27.1,4.5,22.5,15.8,18.0,24.8,13.5,27.1,11.3,24.8,11.3,20.3,13.5,13.5,18.0,6.8,24.8,0.0,31.6,-4.5,42.8,-11.3],[60.9,-20.3,56.4,-20.3,51.9,-18.0,49.6,-15.8,47.3,-11.3,47.3,-6.8,49.6,-2.3,54.1,0.0,58.6,0.0,63.1,-2.3,65.4,-4.5,67.6,-9.0,67.6,-13.5,65.4,-18.0,60.9,-20.3,58.6,-18.0,58.6,-13.5,60.9,-9.0,65.4,-6.8,72.1,-6.8,76.7,-9.0,78.9,-11.3,83.4,-20.3,78.9,-6.8,78.9,-2.3,81.2,0.0,85.7,0.0,90.2,-2.3,94.7,-6.8,99.2,-13.5],[101.5,-20.3,96.9,-6.8,96.9,-2.3,99.2,0.0,101.5,0.0,106.0,-2.3,108.2,-4.5,117.2,-18.0,119.5,-22.5,119.5,-18.0,126.3,-18.0,128.5,-15.8,128.5,-11.3,126.3,-4.5,126.3,-2.3,128.5,0.0,130.8,0.0,135.3,-2.3,137.5,-4.5,146.5,-18.0,148.8,-22.5,148.8,-18.0,153.3,-11.3,155.6,-6.8,155.6,-2.3,151.0,0.0],[142.0,-2.3,146.5,0.0,155.6,0.0,160.1,-2.3,162.3,-4.5,166.8,-11.3],[202.9,-11.3,207.4,-18.0,209.7,-22.5,209.7,-18.0,214.2,-11.3,216.4,-6.8,216.4,-2.3,211.9,0.0],[202.9,-2.3,207.4,0.0,216.4,0.0,220.9,-2.3,223.2,-4.5,227.7,-11.3],[234.5,-31.6,234.5,-29.3,236.7,-29.3,236.7,-31.6,234.5,-31.6],[227.7,-11.3,232.2,-20.3,227.7,-6.8,227.7,-2.3,230.0,0.0,232.2,0.0,236.7,-2.3,239.0,-4.5,248.0,-18.0,252.5,-20.3,254.8,-18.0,254.8,-15.8,252.5,-6.8,250.2,0.0],[252.5,-6.8,254.8,-11.3,259.3,-18.0,263.8,-20.3,268.3,-20.3,270.5,-18.0,270.5,-13.5,268.3,-6.8,268.3,-2.3,270.5,0.0,272.8,0.0,277.3,-2.3,279.6,-4.5,284.1,-11.3],[299.8,-15.8,299.8,-18.0,297.6,-20.3,293.1,-20.3,288.6,-18.0,286.3,-15.8,284.1,-11.3,284.1,-6.8,286.3,-2.3,290.8,0.0,297.6,0.0,304.4,-4.5,308.9,-11.3],[311.1,-4.5,315.6,-6.8,317.9,-9.0,320.1,-13.5,320.1,-18.0,317.9,-20.3,315.6,-20.3,311.1,-18.0,308.9,-13.5,308.9,-6.8,311.1,-2.3,315.6,0.0,320.1,0.0,324.6,-2.3,326.9,-4.5,335.9,-18.0,338.2,-22.5,338.2,-18.0,344.9,-18.0,347.2,-15.8,347.2,-11.3,344.9,-4.5,344.9,-2.3,347.2,0.0,349.4,0.0,354.0,-2.3,356.2,-4.5,360.7,-11.3],[363.0,-4.5,367.5,-6.8,369.7,-9.0,372.0,-13.5,372.0,-18.0,369.7,-20.3,367.5,-20.3,363.0,-18.0,360.7,-13.5,360.7,-6.8,363.0,-2.3,367.5,0.0,372.0,0.0,376.5,-2.3,378.7,-4.5,387.8,-18.0,394.5,-29.3,396.8,-33.8,399.0,-40.6,399.0,-45.1,396.8,-47.3,392.3,-45.1,390.0,-40.6,387.8,-31.6,385.5,-15.8,385.5,-2.3,387.8,0.0,390.0,0.0,394.5,-2.3,396.8,-4.5,401.3,-11.3,405.8,-20.3,401.3,-6.8,401.3,-2.3,403.5,0.0,408.1,0.0,412.6,-2.3,417.1,-6.8,421.6,-13.5],[423.8,-20.3,410.3,20.3,408.1,24.8,403.5,27.1,401.3,24.8,401.3,20.3,403.5,13.5,410.3,6.8,417.1,2.3,421.6,0.0,428.3,-4.5,435.1,-11.3],[441.9,0.0,439.6,-2.3,441.9,-4.5,444.1,-2.3,444.1,0.0,441.9,4.5,437.4,9.0]]}};
   var PHRASES = ['Hi Tom,', 'Dear Diary,', 'Dear Ms Clarke,', 'Yours sincerely,'];
-  var X0 = 96, BASE = 138;      // where the writing starts and the baseline of the text
-  var AUTO_STOP_MS = 48000;     // stop moving after this long (the button can start it again)
+  var X0 = 40, BASE = 172;            // where the writing starts, and the baseline
+  var SPEED = 150;                    // pen speed in px per second
+  var AUTO_STOP_MS = 48000;           // stop moving after this long (the button starts it again)
+  var QS = 0.74;                      // quill scale
 
-  var HAND =
-    '<defs>' +
-    '<path id="hw-idx" d="M112,-112 C98,-106 82,-92 68,-66"/>' +
-    '<path id="hw-thm" d="M118,-72 C100,-66 80,-58 60,-50"/>' +
-    '<path id="hw-f1" d="M128,-62 C124,-48 118,-38 108,-30"/>' +
-    '<path id="hw-f2" d="M139,-58 C137,-45 132,-34 124,-26"/>' +
-    '<path id="hw-f3" d="M149,-54 C148,-43 145,-33 140,-26"/>' +
-    '</defs>' +
-    // sleeve: the arm comes in from outside the sheet
-    '<path class="hw-sleeve" d="M138,-122 L172,-104 L232,-188 L196,-214 Z"/>' +
-    '<path class="hw-cuff" d="M138,-122 L172,-104 L186,-124 L152,-142 Z"/>' +
-    // curled fingers (behind the pen)
-    '<use href="#hw-f3" class="hw-o" style="stroke-width:15"/><use href="#hw-f3" class="hw-i" style="stroke-width:11"/>' +
-    '<use href="#hw-f2" class="hw-o" style="stroke-width:17"/><use href="#hw-f2" class="hw-i" style="stroke-width:13"/>' +
-    '<use href="#hw-f1" class="hw-o" style="stroke-width:18"/><use href="#hw-f1" class="hw-i" style="stroke-width:14"/>' +
-    // palm
-    '<ellipse class="hw-palm" cx="132" cy="-94" rx="33" ry="40" transform="rotate(32 132 -94)"/>' +
-    // pen: nib, grip section, barrel, clip
-    '<path class="hw-nib" d="M0,0 L21.7,-15.5 L12.7,-23.5 Z"/><path class="hw-slit" d="M0,0 L17.2,-19.5"/>' +
-    '<path class="hw-grip" d="M22.5,-14.9 L11.9,-24.1 L29,-43.6 L39.6,-34.4 Z"/>' +
-    '<path class="hw-barrel" d="M40.3,-33.7 L28.3,-44.3 L83,-106.6 L95,-96 Z"/>' +
-    '<path class="hw-clip" d="M62,-68 L74,-79" />' +
-    // thumb and index finger pinch the pen
-    '<use href="#hw-thm" class="hw-o" style="stroke-width:19"/><use href="#hw-thm" class="hw-i" style="stroke-width:15"/>' +
-    '<use href="#hw-idx" class="hw-o" style="stroke-width:19"/><use href="#hw-idx" class="hw-i" style="stroke-width:15"/>' +
-    '<path class="hw-nail" d="M66,-71 C69,-68 72,-66 74,-65"/>';
+  /* ---- the quill, drawn with code so it looks hand-sketched: shaft, vane and barbs ---- */
+  function quillSvg() {
+    var ANG = -62 * Math.PI / 180, L = 250, d = [Math.cos(ANG), Math.sin(ANG)], n = [-d[1], d[0]];  // n points to the right-hand side
+    function S(t) { var b = -16 * Math.sin(Math.PI * t); return [d[0] * L * t + n[0] * b, d[1] * L * t + n[1] * b]; }
+    function W(u) { return 36 * Math.sin(Math.PI * Math.pow(u, 0.82)) * (1 - 0.18 * u); }
+    function pt(t, side, k) { var s = S(t), u = (t - 0.2) / 0.8, w = Math.max(0, W(Math.min(1, Math.max(0, u)))) * (side < 0 ? 1 : 0.6) * (k || 1); return [s[0] + n[0] * w * side, s[1] + n[1] * w * side]; }
+    function f(p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }
+    var i, t, left = [], right = [], N = 26;
+    for (i = 0; i <= N; i++) { t = 0.2 + 0.8 * i / N; left.push(pt(t, -1)); right.push(pt(t, 1)); }
+    var outline = 'M' + f(S(0.2));
+    left.forEach(function (p) { outline += ' L' + f(p); });
+    for (i = right.length - 1; i >= 0; i--) outline += ' L' + f(right[i]);
+    outline += ' Z';
+    var barbs = '';
+    for (i = 0; i < 40; i++) {
+      t = 0.215 + 0.77 * i / 40;
+      [-1, 1].forEach(function (side) {
+        var a = S(t), b = pt(Math.min(0.995, t + 0.075), side, 0.96), m = [(a[0] + b[0]) / 2 - d[0] * 4 * side * -0.4, (a[1] + b[1]) / 2 - d[1] * 4 * side * -0.4];
+        barbs += 'M' + f(a) + ' Q' + f(m) + ' ' + f(b);
+      });
+    }
+    var shaft = 'M0 0 ';
+    for (i = 1; i <= 24; i++) shaft += 'L' + f(S(i / 24 * 1.0));
+    var nib = 'M0 0 L' + (n[0] * 3.2 + d[0] * 13).toFixed(1) + ' ' + (n[1] * 3.2 + d[1] * 13).toFixed(1) + ' L' + (-n[0] * 3.2 + d[0] * 13).toFixed(1) + ' ' + (-n[1] * 3.2 + d[1] * 13).toFixed(1) + ' Z';
+    return '<path class="hw-qv" d="' + outline + '"/><path class="hw-qb" d="' + barbs + '"/><path class="hw-qs" d="' + shaft + '"/><path class="hw-qn" d="' + nib + '"/>';
+  }
 
   A.heroHtml = function () {
-    return '<div class="hero-writer" aria-hidden="true"><svg viewBox="0 0 620 250" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
-      '<rect class="hw-sheet" x="8" y="8" width="604" height="234" rx="6"/>' +
-      '<g class="hw-rules"><line x1="20" x2="600" y1="94" y2="94"/><line x1="20" x2="600" y1="142" y2="142"/><line x1="20" x2="600" y1="190" y2="190"/><line x1="20" x2="600" y1="46" y2="46"/></g>' +
-      '<line class="hw-margin" x1="70" x2="70" y1="14" y2="236"/>' +
-      '<clipPath id="hw-clip"><rect id="hw-rect" x="0" y="0" width="0" height="250"/></clipPath>' +
-      '<text id="hw-text" class="hw-text" x="' + X0 + '" y="' + BASE + '" clip-path="url(#hw-clip)">' + PHRASES[0] + '</text>' +
-      '<g id="hw-hand" transform="translate(' + X0 + ',' + BASE + ')"><g class="hw-art" transform="scale(.8)">' + HAND + '</g></g>' +
-      '</svg></div>';
+    return '<div class="hero-writer" aria-hidden="true"><svg viewBox="0 0 640 255" xmlns="http://www.w3.org/2000/svg" focusable="false">' +
+      '<defs><filter id="hw-rough" filterUnits="userSpaceOnUse" x="-120" y="-240" width="900" height="560"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/></filter></defs>' +
+      '<g filter="url(#hw-rough)"><g id="hw-ink"></g><g id="hw-quill" transform="translate(' + X0 + ',' + (BASE - 20) + ')"><g transform="scale(' + QS + ')">' + quillSvg() + '</g></g></g></svg></div>';
   };
+
+  function smooth(flat, ox, oy) {
+    var p = [], i;
+    for (i = 0; i < flat.length; i += 2) p.push([ox + flat[i], oy + flat[i + 1]]);
+    function f(q) { return q[0].toFixed(1) + ' ' + q[1].toFixed(1); }
+    function mid(a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; }
+    if (p.length < 3) return 'M' + f(p[0]) + ' L' + f(p[p.length - 1]);
+    var d = 'M' + f(p[0]) + ' L' + f(mid(p[0], p[1]));
+    for (i = 1; i < p.length - 1; i++) d += ' Q' + f(p[i]) + ' ' + f(mid(p[i], p[i + 1]));
+    return d + ' L' + f(p[p.length - 1]);
+  }
 
   var token = 0;
   A.heroStart = function () {
     var svg = A.$('.hero-writer svg');
     if (!svg) return;
-    var my = ++token;
-    var txt = svg.querySelector('#hw-text'), rect = svg.querySelector('#hw-rect'), hand = svg.querySelector('#hw-hand');
+    var my = ++token, NS = 'http://www.w3.org/2000/svg';
+    var ink = svg.querySelector('#hw-ink'), quill = svg.querySelector('#hw-quill');
     var btn = A.$('[data-act="heroToggle"]');
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var st = { i: 0, len: 300, phase: 'write', t: 0, paused: false, total: 0, last: 0, stopped: false };
+    var st = { i: 0, t: 0, phase: 'write', hold: 0, paused: false, stopped: false, total: 0, last: 0, items: [], segs: [], dur: 1, end: [X0, BASE] };
 
-    function place(x, y, rot) { hand.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ') rotate(' + (rot || 0).toFixed(1) + ')'); }
-    function setPhrase(i) {
-      txt.textContent = PHRASES[i]; txt.style.opacity = 1;
-      st.len = txt.getComputedTextLength ? txt.getComputedTextLength() : 300;
-      rect.setAttribute('width', 0);
-    }
-    function showStill() {
-      setPhrase(0); rect.setAttribute('width', X0 + st.len + 12); place(X0 + st.len + 6, BASE - 16, 0);
-    }
     function label() {
       if (!btn) return;
       btn.setAttribute('aria-pressed', String(st.paused || st.stopped));
       btn.querySelector('.hero-lbl').textContent = A.t((st.paused || st.stopped) ? 'hero.play' : 'hero.pause');
     }
-    A._hero = { seek: function (p) { st.phase = 'write'; var x = X0 + st.len * p; rect.setAttribute('width', x + 6); place(x, BASE + 2, 0); }, st: st };
+    function place(x, y, rot) { quill.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ') rotate(' + (rot || 0).toFixed(1) + ')'); }
 
-    function ready() {
-      if (my !== token) return;
-      if (reduce) { showStill(); if (btn) btn.hidden = true; return; }
-      setPhrase(0); place(X0, BASE - 10, 0); label();
-      st.last = performance.now();
-      requestAnimationFrame(frame);
+    /* make the pen strokes for one phrase and a timeline: draw, lift and move, draw ... */
+    function build(i) {
+      var ph = DATA[PHRASES[i]], k, items = [], segs = [], prev = null;
+      ink.innerHTML = ''; ink.style.opacity = 1;
+      ph.s.forEach(function (flat) {
+        var el = document.createElementNS(NS, 'path'); el.setAttribute('d', smooth(flat, X0, BASE)); el.setAttribute('class', 'hw-ink');
+        ink.appendChild(el);
+        var len = el.getTotalLength(), dot = len < 0.6;
+        if (!dot) { el.style.strokeDasharray = len + ' ' + (len + 2); el.style.strokeDashoffset = len; } else { el.style.visibility = 'hidden'; len = 0.6; }
+        items.push({ el: el, len: len, dot: dot, a: [X0 + flat[0], BASE + flat[1]], b: [X0 + flat[flat.length - 2], BASE + flat[flat.length - 1]] });
+      });
+      // a little flourish under the greeting, like a signature underline
+      var fx = X0 + 6, fy = BASE + 30, fw = Math.min(ph.w, 330), fl = document.createElementNS(NS, 'path');
+      fl.setAttribute('d', 'M' + fx + ' ' + (fy + 4) + ' C' + (fx + fw * 0.3) + ' ' + (fy - 8) + ' ' + (fx + fw * 0.62) + ' ' + (fy + 14) + ' ' + (fx + fw) + ' ' + (fy - 2) + ' S' + (fx + fw + 20) + ' ' + (fy - 8) + ' ' + (fx + fw + 6) + ' ' + (fy - 10));
+      fl.setAttribute('class', 'hw-ink hw-flourish'); ink.appendChild(fl);
+      var fL = fl.getTotalLength(); fl.style.strokeDasharray = fL + ' ' + (fL + 2); fl.style.strokeDashoffset = fL;
+      items.push({ el: fl, len: fL, dot: false, a: [fx, fy + 4], b: [fx + fw + 6, fy - 10], flour: true });
+      items.forEach(function (it, n) {
+        if (prev) { var dx = it.a[0] - prev.b[0], dy = it.a[1] - prev.b[1], dist = Math.hypot(dx, dy); segs.push({ type: 'move', from: prev.b, to: it.a, dur: 90 + dist * 3.2 }); }
+        segs.push({ type: 'draw', it: it, dur: Math.max(70, it.len / SPEED * 1000 * (it.flour ? 0.7 : 1)) });
+        prev = it;
+      });
+      var tot = 0; segs.forEach(function (s) { s.t0 = tot; tot += s.dur; });
+      st.items = items; st.segs = segs; st.dur = tot; st.end = prev.b;
     }
+    /* set everything to how it looks at time t (ms) */
+    function apply(t) {
+      var tip = [X0, BASE - 14], rot = -3, lift = 0, j;
+      st.items.forEach(function (it) { if (!it.dot) it.el.style.strokeDashoffset = it.len; else it.el.style.visibility = 'hidden'; });
+      for (j = 0; j < st.segs.length; j++) {
+        var s = st.segs[j];
+        if (t >= s.t0 + s.dur) {
+          if (s.type === 'draw') { if (!s.it.dot) s.it.el.style.strokeDashoffset = 0; else s.it.el.style.visibility = 'visible'; tip = s.it.b; }
+          else tip = s.to;
+        } else if (t > s.t0) {
+          var u = (t - s.t0) / s.dur;
+          if (s.type === 'draw') {
+            var p = 0.65 * u + 0.35 * u * u * (3 - 2 * u);
+            if (!s.it.dot) { s.it.el.style.strokeDashoffset = s.it.len * (1 - p); var q = s.it.el.getPointAtLength(s.it.len * p); tip = [q.x, q.y]; } else { s.it.el.style.visibility = 'visible'; tip = s.it.a; }
+            rot = -3 + Math.sin(t / 130) * 2.2;
+          } else {
+            tip = [s.from[0] + (s.to[0] - s.from[0]) * u, s.from[1] + (s.to[1] - s.from[1]) * u]; lift = 16 * Math.sin(Math.PI * u); rot = -6;
+          }
+          break;
+        }
+      }
+      place(tip[0], tip[1] - lift, rot);
+    }
+    function showStill() {
+      build(0); apply(st.dur + 1); place(st.end[0] + 10, st.end[1] - 16, -4);
+    }
+    A._hero = { st: st, seek: function (p) { st.phase = 'write'; apply(st.dur * p); } };
+
     function frame(ts) {
       if (my !== token || !document.body.contains(svg)) return;
       var dt = Math.min(ts - st.last, 60); st.last = ts;
       if (!st.paused && !st.stopped && !document.hidden) {
-        st.t += dt; st.total += dt;
+        st.total += dt;
         if (st.total > AUTO_STOP_MS) { st.stopped = true; label(); }
-        step();
+        if (st.phase === 'write') {
+          st.t += dt; apply(st.t);
+          if (st.t >= st.dur) { st.phase = 'hold'; st.hold = 0; }
+        } else if (st.phase === 'hold') {
+          st.hold += dt; var h = Math.min(1, st.hold / 380);
+          place(st.end[0] + 10 * h, st.end[1] - 16 * h, -3 - 3 * h);
+          if (st.hold > 2200) { st.phase = 'back'; st.hold = 0; }
+        } else {
+          st.hold += dt; var b = Math.min(1, st.hold / 700), e = b * b * (3 - 2 * b);
+          ink.style.opacity = String(1 - e);
+          place(st.end[0] + 10 + (X0 - st.end[0] - 10) * e, st.end[1] - 16 + (BASE - 14 - st.end[1] + 16) * e, -6);
+          if (b >= 1) { st.i = (st.i + 1) % PHRASES.length; build(st.i); st.t = 0; st.phase = 'write'; apply(0); }
+        }
       }
       requestAnimationFrame(frame);
-    }
-    function step() {
-      var D = 500 + st.len * 12;
-      if (st.phase === 'write') {
-        var u = Math.min(1, st.t / D), x = X0 + st.len * u;
-        var wob = Math.sin(u * 95) * 3.2 + Math.sin(u * 31) * 1.6;
-        rect.setAttribute('width', x + 6);
-        place(x, BASE + 2 + wob, -2 + Math.sin(u * 40) * 2);
-        if (u >= 1) { st.phase = 'hold'; st.t = 0; }
-      } else if (st.phase === 'hold') {
-        var h = Math.min(1, st.t / 350);
-        place(X0 + st.len + 6 * h, BASE + 2 - 20 * h, 0);
-        if (st.t > 1900) { st.phase = 'back'; st.t = 0; }
-      } else if (st.phase === 'back') {
-        var b = Math.min(1, st.t / 650), e = b * b * (3 - 2 * b);
-        place(X0 + st.len * (1 - e) + 6 * (1 - e), BASE - 18 - 0 * e, 0);
-        txt.style.opacity = String(1 - e);
-        if (b >= 1) { st.i = (st.i + 1) % PHRASES.length; setPhrase(st.i); st.phase = 'write'; st.t = 0; }
-      }
     }
     A.acts.heroToggle = function () {
       if (st.stopped) { st.stopped = false; st.total = 0; st.paused = false; }
       else st.paused = !st.paused;
       label();
     };
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(ready); else ready();
+    function ready() {
+      if (my !== token) return;
+      if (reduce) { showStill(); if (btn) btn.hidden = true; return; }
+      build(0); apply(0); label();
+      st.last = performance.now(); requestAnimationFrame(frame);
+    }
+    ready();
   };
 
   var prev = A.afterRender;

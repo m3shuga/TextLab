@@ -1,14 +1,23 @@
-/* Practice engine: mcq, gap, sort, order. Everything stays in memory only. */
+/* Practice engine: mcq, gap, sort, order. Everything stays in memory only.
+   Works for a module's own practice list and for the practice list of one topic page. */
 (function () {
   'use strict';
   var A = window.APP, t = A.t, L = A.L, esc = A.esc, rich = A.rich, icon = A.icon;
 
-  function key(m) { return m.id + '/' + A.state.prefs.level; }
+  /* which list are we practising? (the module's list, or the list of the topic page we are on) */
+  function scope(m) {
+    var r = A.state.route;
+    if (r.tab === 't' && m.topics) {
+      var tp = m.topics.filter(function (x) { return x.id === r.sub; })[0];
+      if (tp) return { key: m.id + '/' + tp.id, list: tp.practice || [] };
+    }
+    return { key: m.id, list: m.practice || [] };
+  }
+  function skey(m) { return scope(m).key + '/' + A.state.prefs.level; }
   function setFor(m) {
-    var k = key(m), lvl = A.state.prefs.level;
+    var k = skey(m), lvl = A.state.prefs.level;
     if (!A.state.prac[k]) {
-      var items = m.practice.filter(function (it) { return it.level.indexOf(lvl) >= 0; }).map(prepare);
-      A.state.prac[k] = { items: items, st: {} };
+      A.state.prac[k] = { items: scope(m).list.filter(function (it) { return it.level.indexOf(lvl) >= 0; }).map(prepare), st: {} };
     }
     return A.state.prac[k];
   }
@@ -41,16 +50,17 @@
     var ok = solved(o, st), extra = '';
     if (o.it.type === 'order' && !ok) extra = ' ' + t('pr.inplace', { n: st.right, total: o.it.items.length });
     if (o.it.type === 'sort' && !ok) { var good = o.order.filter(function (x) { return st.placed[x.i] === x.b; }).length; extra = ' ' + t('pr.inplace', { n: good, total: o.order.length }); }
-    return '<div class="fb ' + (ok ? 'ok' : 'no') + '" role="status">' + icon(ok ? 'check' : 'x') + '<div><strong>' + esc(t(ok ? 'pr.correct' : 'pr.notquite')) + '</strong>' + esc(extra) + ' ' + esc(L(o.it.why)) + '</div></div>';
+    return '<div class="fb ' + (ok ? 'ok' : 'no') + '" role="status">' + icon(ok ? 'check' : 'x') + '<div><strong>' + esc(t(ok ? 'pr.correct' : 'pr.notquite')) + '</strong>' + esc(extra) + ' ' + rich(L(o.it.why)) + '</div></div>';
   }
 
-  function itemHtml(o, n) {
-    var it = o.it, set = A.state.prac[A.state.route.id + '/' + A.state.prefs.level], st = stOf(set, it.id), id = esc(it.id), out;
-    out = '<li class="pq" id="pq-' + id + '"><p class="pq-q"><span class="pq-n">' + n + '</span>' + esc(L(it.q)) + '</p>';
+  function itemHtml(set, o, n) {
+    var it = o.it, st = stOf(set, it.id), id = esc(it.id), out;
+    out = '<li class="pq" id="pq-' + id + '"><p class="pq-q"><span class="pq-n">' + n + '</span>' + rich(L(it.q)) + '</p>';
+    if (it.ctx) out += '<p class="pq-ctx" lang="en">' + rich(it.ctx) + '</p>';
     if (it.type === 'mcq') {
       out += '<ul class="opts">' + o.opts.map(function (op, i) {
         var picked = st.sel === i, cls = picked ? (op.ok ? ' right' : ' wrong') : (st.sel != null && op.ok ? ' reveal' : '');
-        return '<li><button type="button" class="opt' + cls + '" data-act="pracOpt" data-id="' + id + '" data-i="' + i + '" data-key="po-' + id + '-' + i + '"' + (st.sel != null ? ' disabled' : '') + '>' + (picked ? icon(op.ok ? 'check' : 'x') : '') + '<span lang="en">' + rich(op.text) + '</span></button></li>';
+        return '<li><button type="button" class="opt' + cls + '" data-act="pracOpt" data-id="' + id + '" data-i="' + i + '" data-key="po-' + id + '-' + i + '"' + (st.sel != null ? ' disabled' : '') + '>' + (picked ? icon(op.ok ? 'check' : 'x') : '') + '<span' + (it.nbopts ? '' : ' lang="en"') + '>' + rich(typeof op.text === 'string' ? op.text : L(op.text)) + '</span></button></li>';
       }).join('') + '</ul>';
     } else if (it.type === 'gap') {
       out += '<p class="gap"><span lang="en">' + rich(it.before) + '</span> <select class="select" data-change="gapSel" data-id="' + id + '" data-key="gs-' + id + '" aria-label="' + esc(t('pr.choose')) + '"' + (st.checked ? ' disabled' : '') + '><option value="">…</option>' +
@@ -76,14 +86,16 @@
     return out + '</li>';
   }
 
-  A.practiceHtml = function (m) {
+  /* opts.embedded: shown on a topic page (no heading, the level control is on the page) */
+  A.practiceHtml = function (m, opts) {
+    opts = opts || {};
     var set = setFor(m), lvl = A.state.prefs.level, score = 0;
     set.items.forEach(function (o) { if (solved(o, stOf(set, o.it.id))) score++; });
     var levelLabels = [1, 2, 3].map(function (n) { return { v: n, label: esc(t('lv.n', { n: n })) + '<small>' + esc(t('lv.g' + n)) + '</small>' }; });
-    var out = '<section class="practice"><h2 class="sr">' + esc(t('tab.practice')) + '</h2><p class="lead">' + esc(t('pr.intro')) + '</p><p class="muted">' + icon('info') + ' ' + esc(t('pr.note')) + '</p>' +
-      '<div class="toolbar"><div class="tb-group"><span class="set-lbl">' + esc(t('mv.level')) + '</span>' + A.segCtl(t('mv.level'), levelLabels, lvl, 'setLevel', ' data-key="plv"') + '<span class="muted lv-d">' + esc(t('lv.d' + lvl)) + '</span></div>' +
+    var out = '<section class="practice" aria-labelledby="prh"><' + (opts.embedded ? 'h2' : 'h2 class="sr"') + ' id="prh">' + esc(t('tab.practice')) + '</h2><p class="' + (opts.embedded ? 'muted' : 'lead') + '">' + esc(t('pr.intro')) + '</p>' + (opts.embedded ? '' : '<p class="muted">' + icon('info') + ' ' + esc(t('pr.note')) + '</p>') +
+      '<div class="toolbar">' + (opts.embedded ? '' : '<div class="tb-group"><span class="set-lbl">' + esc(t('mv.level')) + '</span>' + A.segCtl(t('mv.level'), levelLabels, lvl, 'setLevel', ' data-key="plv"') + '<span class="muted lv-d">' + esc(t('lv.d' + lvl)) + '</span></div>') +
       '<div class="tb-group"><p class="score" role="status">' + esc(t('pr.score', { n: score, total: set.items.length })) + '</p><button type="button" class="btn btn-ghost" data-act="pracReset">' + esc(t('pr.resetall')) + '</button></div></div>';
-    out += set.items.length ? '<ol class="pqs">' + set.items.map(function (o, i) { return itemHtml(o, i + 1); }).join('') + '</ol>' : '<p class="empty">' + esc(t('pr.none')) + '</p>';
+    out += set.items.length ? '<ol class="pqs">' + set.items.map(function (o, i) { return itemHtml(set, o, i + 1); }).join('') + '</ol>' : '<p class="empty">' + esc(t('pr.none')) + '</p>';
     return out + '</section>';
   };
 
@@ -108,9 +120,9 @@
     f.st.right = cur.filter(function (x, i) { return x === f.o.it.items[i]; }).length; f.st.checked = true; A.rerender();
   };
   A.acts.pracRetry = function (el) {
-    var f = find(el.dataset.id), k = f.m.id + '/' + A.state.prefs.level, idx = f.set.items.indexOf(f.o);
+    var f = find(el.dataset.id), idx = f.set.items.indexOf(f.o);
     f.set.items[idx] = prepare(f.o.it); delete f.set.st[el.dataset.id]; A.rerender();
     var nel = document.getElementById('pq-' + el.dataset.id); if (nel) { var b = nel.querySelector('button:not([disabled]), select:not([disabled])'); if (b) b.focus({ preventScroll: true }); }
   };
-  A.acts.pracReset = function () { delete A.state.prac[key(A.module(A.state.route.id))]; A.rerender(); };
+  A.acts.pracReset = function () { delete A.state.prac[skey(A.module(A.state.route.id))]; A.rerender(); };
 })();

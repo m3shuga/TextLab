@@ -104,6 +104,7 @@
         fn: t('The ending shows your hopes or plans for the next days.', 'Slutten viser håp eller planer for de neste dagene.'),
         tips: [
           t('Use I hope, I\'m going to or I\'m looking forward to.', 'Bruk I hope, I\'m going to eller I\'m looking forward to.'),
+          t('After "I hope" you can use the present tense ("I hope Monday is a good day") or "will" ("I hope Monday will be a good day"). Both are correct. The present tense is very common for days and times that are already fixed.', 'Etter «I hope» kan du bruke presens («I hope Monday is a good day») eller «will» («I hope Monday will be a good day»). Begge er riktige. Presens er veldig vanlig om dager og tidspunkter som allerede er bestemt.'),
           t('Finish with a feeling or a plan, not with "The End".', 'Avslutt med en følelse eller en plan, ikke med «The End».')],
         phrases: ['Tomorrow I\'m going to …', 'I hope …', 'I\'m looking forward to …', 'I can\'t wait to …'],
         mistake: { bad: 'That is all. The end.', good: 'I hope Monday is a good day.', note: t('A diary ends with hope or a plan.', 'En dagbok slutter med håp eller en plan.') } },

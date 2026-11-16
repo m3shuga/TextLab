@@ -31,6 +31,8 @@
 (function () {
   'use strict';
   var A = window.APP, rows = [], counts = { ok: 0, warn: 0, fail: 0 };
+  A.modules = A.modules || [];
+  A.module = A.module || function (id) { return A.modules.filter(function (m) { return m.id === id; })[0]; };   // same helper as js/core.js
   function add(level, where, msg) { rows.push([level, where, msg]); counts[level]++; }
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
@@ -111,7 +113,7 @@
         checkMarkup(it.en, w + ' phrase bank', it.en);
       });
     });
-    add(n ? 'ok' : 'fail', w, n + ' phrases in the phrase bank');
+    if (m.phraseBank || !m.topics) add(n ? 'ok' : 'fail', w, n + ' phrases in the phrase bank');
 
     // practice
     var ids = {}, perLevel = { 1: 0, 2: 0, 3: 0 };
@@ -125,10 +127,51 @@
       if (it.type === 'order' && (!it.items || it.items.length < 3)) add('fail', pw, 'order task needs at least 3 items');
       if (['mcq', 'gap', 'sort', 'order'].indexOf(it.type) < 0) add('fail', pw, 'Unknown type ' + it.type);
     });
-    [1, 2, 3].forEach(function (l) { add(perLevel[l] >= 6 ? 'ok' : 'warn', w + ' practice', 'Level ' + l + ': ' + perLevel[l] + ' tasks' + (perLevel[l] < 6 ? ' (aim for 6 or more)' : '')); });
+    if (m.practice) [1, 2, 3].forEach(function (l) { add(perLevel[l] >= 6 ? 'ok' : 'warn', w + ' practice', 'Level ' + l + ': ' + perLevel[l] + ' tasks' + (perLevel[l] < 6 ? ' (aim for 6 or more)' : '')); });
 
     // checklist
     walk(m.checklist, 'checklist', w);
+
+    // topics (Grammar, Sources, Dictionary)
+    var tIds = {}, tUnrev = 0;
+    (m.topics || []).forEach(function (tp) {
+      var tw = w + ' topic ' + tp.id;
+      if (tIds[tp.id]) add('fail', tw, 'Duplicate topic id'); tIds[tp.id] = 1;
+      if (!/^[a-z0-9-]+$/.test(tp.id || '')) add('fail', tw, 'Topic id must be lowercase letters, numbers and hyphens');
+      ['title', 'blurb'].forEach(function (f) { if (!tp[f]) add('fail', tw, 'Missing field: ' + f); });
+      (tp.curriculum || []).forEach(function (k) { if (KNOWN_K.indexOf(k) < 0) add('fail', tw, 'Unknown curriculum code ' + k); });
+      if (tp.reviewed !== true) tUnrev++;
+      walk({ title: tp.title, blurb: tp.blurb, top5: tp.top5, sections: tp.sections }, '', tw);
+      if (tp.top5 && tp.top5.length !== 5 && tp.top5.length > 0 && tp.top5.length < 2) add('warn', tw, 'Very short "top 5" list');
+      if (tp.widget && ['verbs', 'glossary', 'apa', 'source-check', 'decider'].indexOf(tp.widget) < 0) add('fail', tw, 'Unknown widget ' + tp.widget);
+      (function checkBlocks(blocks) {
+        (blocks || []).forEach(function (b) {
+          if (b.widget && ['source-check', 'decider', 'verbs', 'glossary', 'apa'].indexOf(b.widget) < 0) add('fail', tw, 'Unknown widget block ' + b.widget);
+          if (b.lvl) { if ([2, 3].indexOf(b.lvl) < 0) add('fail', tw, 'A "lvl" block must be 2 or 3'); checkBlocks(b.blocks); }
+          if (b.table) b.table.rows.forEach(function (r) { if (r.length !== b.table.head.length) add('fail', tw, 'Table row has ' + r.length + ' cells but the header has ' + b.table.head.length); });
+          if (b.nor && (!b.nor.note || !b.nor.bad || !b.nor.good)) add('warn', tw, 'A "typical mistake" box should have note, bad and good');
+        });
+      })((tp.sections || []).reduce(function (a, sec) { return a.concat(sec.blocks || []); }, []));
+      var pl = { 1: 0, 2: 0, 3: 0 };
+      (tp.practice || []).forEach(function (it) {
+        var pw = tw + ' practice ' + it.id;
+        if (ids[it.id]) add('fail', pw, 'Duplicate id'); ids[it.id] = 1;
+        walk({ q: it.q, why: it.why }, '', pw);
+        if (!it.why) add('fail', pw, 'Missing explanation (why)');
+        it.level.forEach(function (l) { pl[l]++; });
+        if (it.type === 'mcq' || it.type === 'gap') { if (!it.options || it.options.length < 2 || typeof it.answer !== 'number' || it.answer < 0 || it.answer >= it.options.length) add('fail', pw, 'answer index is outside the options'); }
+        if (it.type === 'sort') it.items.forEach(function (x) { if (x.b < 0 || x.b >= it.buckets.length) add('fail', pw, 'sort item "' + x.text + '" has a bad bucket'); });
+        if (it.type === 'order' && (!it.items || it.items.length < 3)) add('fail', pw, 'order task needs at least 3 items');
+        if (['mcq', 'gap', 'sort', 'order'].indexOf(it.type) < 0) add('fail', pw, 'Unknown type ' + it.type);
+      });
+      if (tp.practice) [1, 2, 3].forEach(function (l) { if (!pl[l]) add('fail', tw, 'No practice tasks for level ' + l); });
+      add('ok', tw, (tp.practice || []).length + ' practice tasks' + (tp.widget ? ', widget: ' + tp.widget : ''));
+    });
+    if (tUnrev) add('warn', w, tUnrev + ' of ' + (m.topics || []).length + ' topics are not yet reviewed by the teacher (set reviewed: true when you approve each one)');
+    if (m.verbs) m.verbs.forEach(function (v) { if (!v.b || !v.p || !v.pp || !v.nb) add('fail', w + ' verbs', 'Verb row incomplete: ' + (v.b || '?')); });
+    if (m.verbs) add('ok', w + ' verbs', m.verbs.length + ' verbs, ' + m.verbs.filter(function (v) { return v.core; }).length + ' marked as common');
+    if (m.glossary) m.glossary.forEach(function (g) { if (!g.en || !g.nb || !g.def) add('fail', w + ' glossary', 'Glossary entry incomplete: ' + (g.en || '?')); });
+    if (m.glossary) add('ok', w + ' glossary', m.glossary.length + ' terms');
 
     // resources
     (m.resources || []).forEach(function (r) {

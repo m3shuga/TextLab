@@ -230,6 +230,7 @@ window.APP = window.APP || {};
     'cr.lic': u('Licence / use', 'Lisens / bruk'),
     'cr.verify': u('We only link to pages. We do not copy their text.', 'Vi lenker bare til sidene. Vi kopierer ikke teksten deres.'),
     'cr.tools': u('Fonts and tools', 'Skrifttyper og verktøy'),
+    'cr.hershey': u('The handwriting of the quill on the home page is made from the Hershey “Script Simplex” single-line font, digitised by Dr. A. V. Hershey at the U.S. National Bureau of Standards (public domain).', 'Håndskriften til fjærpennen på forsiden er laget av enlinjeskrifttypen Hershey «Script Simplex», digitalisert av dr. A. V. Hershey ved U.S. National Bureau of Standards (offentlig eiendom).'),
     'cr.fontsrc': u('Fonts are stored on this site, so no font is loaded from another server.', 'Skrifttypene ligger på denne siden, så ingen skrifttype lastes fra en annen server.'),
     'cr.pending': u('Candidate links not yet checked', 'Kandidatlenker som ikke er sjekket ennå'),
     'cr.pendingnote': u('These could not be checked automatically. Open each one in your browser, and if it is good, move it into the module\'s resources list.', 'Disse kunne ikke sjekkes automatisk. Åpne hver av dem i nettleseren din, og hvis den er bra, flytt den til modulens ressursliste.'),

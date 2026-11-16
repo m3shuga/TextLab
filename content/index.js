@@ -6,7 +6,12 @@ APP.moduleFiles = [
   'email-letter',
   'diary',
   'short-story',
-  'argumentative'
+  'argumentative',
+  'grammar',
+  'grammar-2',
+  'grammar-3',
+  'sources',
+  'dictionary'
 ];
 
 /* Modules that are planned but not built yet. They show as "Coming soon" on the home page.
