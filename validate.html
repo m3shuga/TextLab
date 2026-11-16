@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Content check · TextLab</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .v-ok { color: var(--good); font-weight: 700; } .v-warn { color: #8a5a00; font-weight: 700; } .v-fail { color: var(--bad); font-weight: 700; }
+    :root[data-theme="dark"] .v-warn { color: #ffd23f; }
+    table.cmp td:first-child { white-space: nowrap; }
+    .sum { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; } .sum .box { min-width: 9rem; text-align: center; }
+    .sum strong { font-size: 2rem; display: block; }
+  </style>
+</head>
+<body>
+<main id="main" tabindex="-1">
+  <h1>Content check</h1>
+  <p class="lead">This page checks the content files for missing translations, broken part numbers and unchecked links. Open it in your browser after you edit a file. It changes nothing and sends nothing.</p>
+  <p><a href="index.html">← Back to the site</a></p>
+  <div id="summary"></div>
+  <div id="report"><p>Checking …</p></div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="content/index.js"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.APP, rows = [], counts = { ok: 0, warn: 0, fail: 0 };
+  function add(level, where, msg) { rows.push([level, where, msg]); counts[level]++; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // K-codes (same list as the site; kept short here)
+  var KNOWN_K = ['K1','K2','K3','K4','K5','K6','K7','K8','K9','K10','K11'];
+
+  // walk any object and find {en, nb} pairs with a missing side
+  function walk(o, path, where) {
+    if (o == null || typeof o !== 'object') return;
+    if (Array.isArray(o)) { o.forEach(function (x, i) { walk(x, path + '[' + i + ']', where); }); return; }
+    var keys = Object.keys(o);
+    if (keys.indexOf('en') >= 0 && keys.indexOf('nb') >= 0 && keys.every(function (k) { return k === 'en' || k === 'nb'; })) {
+      if (!o.en || !String(o.en).trim()) add('fail', where, 'Missing English text at ' + path);
+      if (!o.nb || !String(o.nb).trim()) add('fail', where, 'Missing Norwegian text at ' + path + (o.en ? ' (English: "' + String(o.en).slice(0, 50) + '")' : ''));
+      checkMarkup(o.en, where, path); checkMarkup(o.nb, where, path);
+      return;
+    }
+    keys.forEach(function (k) { walk(o[k], path ? path + '.' + k : k, where); });
+  }
+  function checkMarkup(s, where, path) {
+    if (typeof s !== 'string') return;
+    var stripped = s.replace(/\{[^{}|]*\|[^{}]*\}/g, '');
+    if (/[{}]/.test(stripped)) add('fail', where, 'Broken {uk|us} markup at ' + path + ': "' + s.slice(0, 60) + '"');
+    if ((s.match(/\*\*/g) || []).length % 2) add('fail', where, 'Unbalanced ** at ' + path);
+  }
+
+  function checkModule(m) {
+    var w = 'Module ' + m.id;
+    ['id', 'group', 'title', 'blurb', 'helps', 'curriculum', 'top5'].forEach(function (f) { if (!m[f]) add('fail', w, 'Missing field: ' + f); });
+    (m.curriculum || []).forEach(function (k) { if (KNOWN_K.indexOf(k) < 0) add('fail', w, 'Unknown curriculum code ' + k); });
+    if (!(m.curriculum || []).length) add('fail', w, 'No curriculum codes (K1–K11)');
+    walk({ title: m.title, blurb: m.blurb, helps: m.helps, top5: m.top5, keyRule: m.keyRule, remember: m.remember, compare: m.compare, ukus: m.ukus, sameMessage: m.sameMessage }, '', w);
+
+    var unreviewed = 0, levels = 0;
+    (m.models || []).forEach(function (mod) {
+      var mw = w + ' / ' + mod.id;
+      walk({ title: mod.title, situation: mod.situation, parts: mod.parts }, '', mw);
+      var partIds = Object.keys(mod.parts || {}), used = {}, nums = {};
+      partIds.forEach(function (id) {
+        var p = mod.parts[id];
+        if (!p.cat || ['format','structure','language','tone'].indexOf(p.cat) < 0) add('fail', mw, 'Part "' + id + '" has no valid category');
+        if (nums[p.n]) add('fail', mw, 'Part number ' + p.n + ' used twice'); nums[p.n] = 1;
+        if (!p.tips || !p.tips.length) add('warn', mw, 'Part "' + id + '" has no tips');
+      });
+      [1, 2, 3].forEach(function (lv) {
+        var d = mod.levels && mod.levels[lv];
+        if (!d) { add('fail', mw, 'Level ' + lv + ' is missing'); return; }
+        levels++;
+        if (!d.reviewed) unreviewed++;
+        var words = 0, seen = [];
+        d.segments.forEach(function (s, i) {
+          if (!mod.parts[s.part]) add('fail', mw + ' L' + lv, 'Segment ' + (i + 1) + ' uses unknown part "' + s.part + '"');
+          else used[s.part] = 1;
+          if (!s.nb || !String(s.nb).trim()) add('fail', mw + ' L' + lv, 'Segment ' + (i + 1) + ' has no Norwegian translation');
+          checkMarkup(s.text, mw + ' L' + lv, 'segment ' + (i + 1)); checkMarkup(s.nb, mw + ' L' + lv, 'segment ' + (i + 1) + ' (nb)');
+          words += String(s.text).replace(/\{([^{}|]*)\|([^{}]*)\}/g, '$1').replace(/[-–]/g, ' ').trim().split(/\s+/).length;
+          if (seen.indexOf(s.part) < 0) seen.push(s.part);
+        });
+        partIds.forEach(function (id) { if (seen.indexOf(id) < 0) add('fail', mw + ' L' + lv, 'Part "' + id + '" is not used in this level'); });
+        var target = { 1: [80, 130], 2: [130, 200], 3: [200, 280] }[lv];
+        if (mod.kind && (mod.kind === 'email' || mod.kind === 'letter') && (words < target[0] || words > target[1])) add('warn', mw + ' L' + lv, words + ' words (target ' + target[0] + '–' + target[1] + ')');
+        else add('ok', mw + ' L' + lv, words + ' words, ' + d.segments.length + ' segments' + (d.reviewed ? ', reviewed' : ', DRAFT (not reviewed)'));
+      });
+    });
+    if (unreviewed) add('warn', w, unreviewed + ' of ' + levels + ' model texts are not yet reviewed by the teacher (set reviewed: true when you approve each one)');
+
+    // phrase bank
+    var n = 0;
+    (m.phraseBank || []).forEach(function (g) {
+      walk(g.group, 'phraseBank.group', w);
+      g.items.forEach(function (it) {
+        n++;
+        if (!it.en || !it.nb) add('fail', w + ' phrase bank', 'Phrase missing text or Norwegian gloss: ' + (it.en || '?'));
+        if (['formal', 'informal', 'neutral'].indexOf(it.reg) < 0) add('fail', w + ' phrase bank', 'Bad register on "' + it.en + '"');
+        if ([1, 2, 3].indexOf(it.lvl) < 0) add('fail', w + ' phrase bank', 'Bad level on "' + it.en + '"');
+        checkMarkup(it.en, w + ' phrase bank', it.en);
+      });
+    });
+    add(n ? 'ok' : 'fail', w, n + ' phrases in the phrase bank');
+
+    // practice
+    var ids = {}, perLevel = { 1: 0, 2: 0, 3: 0 };
+    (m.practice || []).forEach(function (it) {
+      var pw = w + ' practice ' + it.id;
+      if (ids[it.id]) add('fail', pw, 'Duplicate id'); ids[it.id] = 1;
+      walk({ q: it.q, why: it.why }, '', pw);
+      it.level.forEach(function (l) { perLevel[l]++; });
+      if (it.type === 'mcq' || it.type === 'gap') { if (typeof it.answer !== 'number' || it.answer < 0 || it.answer >= it.options.length) add('fail', pw, 'answer index is outside the options'); }
+      if (it.type === 'sort') { it.items.forEach(function (x) { if (x.b < 0 || x.b >= it.buckets.length) add('fail', pw, 'sort item "' + x.text + '" has a bad bucket'); }); }
+      if (it.type === 'order' && (!it.items || it.items.length < 3)) add('fail', pw, 'order task needs at least 3 items');
+      if (['mcq', 'gap', 'sort', 'order'].indexOf(it.type) < 0) add('fail', pw, 'Unknown type ' + it.type);
+    });
+    [1, 2, 3].forEach(function (l) { add(perLevel[l] >= 6 ? 'ok' : 'warn', w + ' practice', 'Level ' + l + ': ' + perLevel[l] + ' tasks' + (perLevel[l] < 6 ? ' (aim for 6 or more)' : '')); });
+
+    // checklist
+    walk(m.checklist, 'checklist', w);
+
+    // resources
+    (m.resources || []).forEach(function (r) {
+      var rw = w + ' resource "' + r.title + '"';
+      if (!/^https:\/\//.test(r.url)) add('fail', rw, 'URL must start with https://');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(r.checked || '')) add('fail', rw, 'Missing "checked" date (YYYY-MM-DD)');
+      else { var age = (Date.now() - new Date(r.checked).getTime()) / 864e5; add(age > 180 ? 'warn' : 'ok', rw, 'checked ' + r.checked + (age > 180 ? ' (more than 6 months ago, please check again)' : '')); }
+      if (!r.license) add('warn', rw, 'No licence/use note');
+      walk(r.why, 'why', rw);
+    });
+    (m.pending || []).forEach(function (r) { add('warn', w + ' candidate link', 'NOT checked yet, not shown to students: ' + r.title + ' (' + r.url + ')'); });
+  }
+
+  function finish() {
+    // UI strings
+    Object.keys(A.ui).forEach(function (k) {
+      var s = A.ui[k];
+      if (!s.en || !s.nb) add('fail', 'Interface text', 'Missing translation for "' + k + '"');
+    });
+    add('ok', 'Interface text', Object.keys(A.ui).length + ' interface strings, all with English and Norwegian');
+    if (A.loadErrors && A.loadErrors.length) A.loadErrors.forEach(function (f) { add('fail', 'Loading', 'Could not load ' + f + '. Check the name in content/index.js.'); });
+    A.modules.forEach(checkModule);
+    var order = { fail: 0, warn: 1, ok: 2 };
+    rows.sort(function (a, b) { return order[a[0]] - order[b[0]]; });
+    document.getElementById('summary').innerHTML = '<div class="sum"><div class="box"><strong class="v-fail">' + counts.fail + '</strong>Errors</div><div class="box"><strong class="v-warn">' + counts.warn + '</strong>Warnings</div><div class="box"><strong class="v-ok">' + counts.ok + '</strong>OK</div></div>' +
+      '<p>' + (counts.fail ? 'Fix the errors first (they are listed at the top).' : 'No errors.') + ' Warnings are things to look at, such as texts you have not reviewed yet.</p>';
+    var label = { fail: '<span class="v-fail">ERROR</span>', warn: '<span class="v-warn">WARNING</span>', ok: '<span class="v-ok">OK</span>' };
+    document.getElementById('report').innerHTML = '<div class="tablewrap"><table class="cmp"><thead><tr><th scope="col">Result</th><th scope="col">Where</th><th scope="col">What</th></tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><td>' + label[r[0]] + '</td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+    window.__validate = { counts: counts, rows: rows };
+  }
+
+  function load(src) { return new Promise(function (res) { var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = function () { (A.loadErrors = A.loadErrors || []).push(src); res(); }; document.head.appendChild(s); }); }
+  (A.moduleFiles || []).map(function (f) { return 'content/' + f + '.js'; }).reduce(function (p, f) { return p.then(function () { return load(f); }); }, Promise.resolve()).then(finish);
+})();
+</script>
+</body>
+</html>
